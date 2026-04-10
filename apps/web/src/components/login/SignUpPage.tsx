@@ -18,6 +18,7 @@ const SignUpPage = () => {
   const signupMutation = trpc.auth.signup.useMutation({
     onSuccess: () => {
       toast.success("Account created successfully! Please login.");
+      setIsLoading(false);
       router.push("/login");
     },
     onError: (error) => {

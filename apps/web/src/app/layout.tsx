@@ -8,6 +8,7 @@ import { SessionWrapper } from "./SessionWrapper";
 import { TRPCProvider } from "@/providers/trpc-provider";
 import { SocketProvider } from "@/providers/socket-provider";
 import { GeistSans } from "geist/font/sans";
+import { Toaster } from "sonner";
 
 // DM Mono - Used for code, terminal, and monospace text
 const dmMono = localFont({
@@ -60,6 +61,7 @@ export default async function RootLayout({
           <SessionWrapper session={session}>
             <TRPCProvider>
               <SocketProvider>
+                <Toaster position="top-right" richColors closeButton />
                 {children}
               </SocketProvider>
             </TRPCProvider>

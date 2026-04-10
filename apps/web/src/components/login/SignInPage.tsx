@@ -1,14 +1,18 @@
 "use client";
+import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import PrimaryButton from "../ui/custom-button";
 import { Google, Github } from "../icons/icons";
 import Image from "next/image";
 import Overlay from "../ui/overlay";
 import Link from "next/link";
+import { toast } from "sonner";
 
 const SignInPage = () => {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard/home";
 
   const getSafeCallbackUrl = (url: string): string => {
@@ -32,8 +36,14 @@ const SignInPage = () => {
 
   const safeCallbackUrl = getSafeCallbackUrl(callbackUrl);
 
-  const handleSignIn = (provider: "google" | "github") => {
-    signIn(provider, { callbackUrl: safeCallbackUrl });
+  const handleSignIn = async (provider: "google" | "github") => {
+    setIsLoading(true);
+    try {
+      await signIn(provider, { callbackUrl: safeCallbackUrl });
+    } catch (error) {
+      toast.error("An error occurred during sign in");
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -61,6 +71,7 @@ const SignInPage = () => {
       <PrimaryButton
         onClick={() => handleSignIn("google")}
         classname="w-full max-w-[380px] z-20 "
+        loading={isLoading}
       >
         <div className="w-6">
           <Google />
@@ -70,6 +81,7 @@ const SignInPage = () => {
       <PrimaryButton
         onClick={() => handleSignIn("github")}
         classname="w-full max-w-[380px] z-20 "
+        loading={isLoading}
       >
         <div className="w-6">
           <Github />
@@ -84,12 +96,33 @@ const SignInPage = () => {
       </div>
 
       <form 
-        onSubmit={(e) => {
+        onSubmit={async (e) => {
           e.preventDefault();
+          setIsLoading(true);
           const formData = new FormData(e.currentTarget);
           const email = formData.get("email") as string;
           const password = formData.get("password") as string;
-          signIn("credentials", { email, password, callbackUrl: safeCallbackUrl });
+          
+          try {
+            const result = await signIn("credentials", { 
+              email, 
+              password, 
+              redirect: false,
+              callbackUrl: safeCallbackUrl 
+            });
+
+            if (result?.error) {
+              toast.error(result.error === "CredentialsSignin" ? "Invalid email or password" : result.error);
+              setIsLoading(false);
+            } else if (result?.url) {
+              toast.success("Login successful!");
+              router.push(result.url);
+              router.refresh();
+            }
+          } catch (error) {
+            toast.error("Something went wrong during sign in");
+            setIsLoading(false);
+          }
         }}
         className="w-full max-w-[380px] flex flex-col gap-4 z-20"
       >
@@ -101,6 +134,7 @@ const SignInPage = () => {
             className="bg-[#1a1a1a] border border-[#333] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#555] transition-colors"
             placeholder="john@example.com"
             required
+            disabled={isLoading}
           />
         </div>
         <div className="flex flex-col gap-1">
@@ -111,12 +145,14 @@ const SignInPage = () => {
             className="bg-[#1a1a1a] border border-[#333] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#555] transition-colors"
             placeholder="••••••••"
             required
+            disabled={isLoading}
           />
         </div>
         
         <PrimaryButton
           type="submit"
           classname="w-full mt-2"
+          loading={isLoading}
         >
           Sign In
         </PrimaryButton>
