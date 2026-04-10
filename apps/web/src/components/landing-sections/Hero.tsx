@@ -3,10 +3,11 @@ import { Terminal } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 import PrimaryButtom from "../ui/custom-button";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 
 const Hero = () => {
+  const router = useRouter();
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -86,15 +87,10 @@ const Hero = () => {
         }}
         className="cursor-pointer z-30 [will-change:transform,opacity] motion-reduce:transition-none motion-reduce:transform-none"
       >
-        <Link
-          href="/dashboard/home"
-          className="block"
-        >
-          <PrimaryButtom>
-            <Terminal />
-            Get Started
-          </PrimaryButtom>
-        </Link>
+        <PrimaryButtom onClick={() => router.push("/dashboard/home")}>
+          <Terminal />
+          Get Started
+        </PrimaryButtom>
       </motion.div>
       <div className="absolute h-[50%] w-full bg-gradient-to-t from-surface-primary via-transparent to-transparent bottom-0 left-1/2 -translate-x-1/2"></div>
     </div>

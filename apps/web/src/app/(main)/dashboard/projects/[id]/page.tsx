@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { trpc } from "@/lib/trpc";
 import { 
   ChevronLeft, 
@@ -18,6 +18,7 @@ import { useSession } from "next-auth/react";
 
 const ProjectDetailPage = () => {
   const params = useParams();
+  const router = useRouter();
   const id = params.id as string;
   const { data: session } = useSession();
   
@@ -61,9 +62,12 @@ const ProjectDetailPage = () => {
     <div className="flex flex-col gap-8 pb-20">
       {/* Breadcrumbs & Actions */}
       <div className="flex justify-between items-start">
-        <Link href="/dashboard/projects" className="flex items-center gap-1 text-sm text-text-tertiary hover:text-brand-purple transition-colors">
+        <span 
+          onClick={() => router.push("/dashboard/projects")} 
+          className="flex items-center gap-1 text-sm text-text-tertiary hover:text-brand-purple transition-colors cursor-pointer"
+        >
           <ChevronLeft className="size-4" /> Back to Projects
-        </Link>
+        </span>
         {project.repoUrl && (
             <a href={project.repoUrl} target="_blank" className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black/40 border border-dash-border text-xs text-text-secondary hover:text-text-primary transition-colors">
                 <Github className="size-4" /> View Repo

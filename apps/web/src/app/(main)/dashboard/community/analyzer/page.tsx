@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { trpc } from "@/lib/trpc";
+import { useRouter } from "next/navigation";
 import PrimaryButton from "@/components/ui/custom-button";
 import { 
   DocumentTextIcon, 
@@ -16,6 +17,7 @@ import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function ResumeAnalyzerPage() {
+  const router = useRouter();
   const [text, setText] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [fileData, setFileData] = useState<string | null>(null);
@@ -58,11 +60,14 @@ export default function ResumeAnalyzerPage() {
   };
 
   const handleAnalyze = () => {
+    console.log("🔍 Analyze button clicked!");
     if (!text.trim() && !fileData) {
+      console.log("❌ Validation failed: No text or file data");
       toast.error("Please paste your resume or upload a PDF first.");
       return;
     }
     
+    console.log("🚀 Calling tRPC analyzeSkills mutation...");
     mutation.mutate({ 
       text: text || undefined,
       fileData: fileData || undefined,
@@ -254,7 +259,12 @@ export default function ResumeAnalyzerPage() {
                           <span className="text-xs font-bold text-brand-purple">{project.matchScore || 0}%</span>
                         </div>
                       </div>
-                      <PrimaryButton classname="py-2 px-4 text-xs whitespace-nowrap">View Repo</PrimaryButton>
+                      <PrimaryButton 
+                        onClick={() => router.push(`/dashboard/projects/${project.id}`)}
+                        classname="py-2 px-4 text-xs whitespace-nowrap"
+                      >
+                        View Project
+                      </PrimaryButton>
                     </div>
                   </div>
                 ))}

@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { 
   ChatBubbleLeftRightIcon, 
@@ -58,6 +57,7 @@ const COMMUNITY_ROUTES = [
 export default function CommunitySidebar({ overlay = false }: { overlay?: boolean }) {
   const { setShowSidebar, isCollapsed } = useShowSidebar();
   const pathname = usePathname();
+  const router = useRouter();
 
   const width = isCollapsed ? 80 : 288;
 
@@ -99,20 +99,20 @@ export default function CommunitySidebar({ overlay = false }: { overlay?: boolea
         {COMMUNITY_ROUTES.map((route) => {
           const isActive = pathname === route.path || pathname.startsWith(`${route.path}/`);
           return (
-            <Link href={route.path} key={route.path}>
-              <div
-                className={`w-full h-[40px] flex items-center rounded-lg cursor-pointer transition-all px-3 gap-3 group ${
-                  isActive
-                    ? "bg-brand-purple/10 text-brand-purple"
-                    : "text-text-secondary hover:bg-dash-hover hover:text-text-primary"
-                }`}
-              >
-                <span className="shrink-0">{route.icon}</span>
-                {!isCollapsed && (
-                  <span className="text-sm font-medium">{route.label}</span>
-                )}
-              </div>
-            </Link>
+            <div
+              key={route.path}
+              onClick={() => router.push(route.path)}
+              className={`w-full h-[40px] flex items-center rounded-lg cursor-pointer transition-all px-3 gap-3 group ${
+                isActive
+                  ? "bg-brand-purple/10 text-brand-purple"
+                  : "text-text-secondary hover:bg-dash-hover hover:text-text-primary"
+              }`}
+            >
+              <span className="shrink-0">{route.icon}</span>
+              {!isCollapsed && (
+                <span className="text-sm font-medium">{route.label}</span>
+              )}
+            </div>
           );
         })}
 

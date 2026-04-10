@@ -3,6 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { useSocket } from "@/providers/socket-provider";
 import { trpc } from "@/lib/trpc";
 import {
@@ -47,6 +48,7 @@ const roleIcons: Record<string, React.ReactNode> = {
 
 const QuickStats = () => {
   const { data: session } = useSession();
+  const router = useRouter();
   const { isConnected } = useSocket();
   const { data: globalStats } = trpc.project.getStats.useQuery();
   
@@ -74,6 +76,7 @@ const QuickStats = () => {
       subtext: role === "OWNER" ? "Full access" : role === "MAINTAINER" ? "Manage projects" : role === "CONTRIBUTOR" ? "Contribute" : "View only",
       valueClass: role === "OWNER" ? "text-amber-400" : role === "MAINTAINER" ? "text-brand-purple" : role === "CONTRIBUTOR" ? "text-emerald-400" : "text-text-muted",
       glowClass: "",
+      onClick: () => router.push("/dashboard/community/members"),
     },
     {
       label: "Open Projects",
@@ -82,6 +85,7 @@ const QuickStats = () => {
       subtext: "Active this week",
       valueClass: "text-text-primary",
       glowClass: "",
+      onClick: () => router.push("/dashboard/projects"),
     },
     {
       label: "Contributors",
@@ -90,6 +94,7 @@ const QuickStats = () => {
       subtext: "Community members",
       valueClass: "text-text-primary",
       glowClass: "",
+      onClick: () => router.push("/dashboard/community/members"),
     },
   ];
 
@@ -101,7 +106,8 @@ const QuickStats = () => {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: index * 0.1, duration: 0.4 }}
-          className={`group relative p-5 rounded-2xl bg-dash-surface border border-dash-border hover:border-brand-purple/20 transition-all duration-300 overflow-hidden ${stat.glowClass}`}
+          onClick={stat.onClick}
+          className={`group relative p-5 rounded-2xl bg-dash-surface border border-dash-border hover:border-brand-purple/20 transition-all duration-300 overflow-hidden cursor-pointer ${stat.glowClass}`}
         >
           {/* Decorative corner gradient */}
           <div className="absolute -top-12 -right-12 w-24 h-24 bg-brand-purple/5 rounded-full blur-2xl group-hover:bg-brand-purple/10 transition-colors duration-500" />

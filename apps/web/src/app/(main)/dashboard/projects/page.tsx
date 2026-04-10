@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import PrimaryButtom from "@/components/ui/custom-button";
 import ExploreRepos from "@/components/dashboard/ExploreRepos";
 import { motion } from "framer-motion";
@@ -33,6 +34,7 @@ const TABS: { id: TabId; label: string; icon: React.ReactNode }[] = [
 
 const ProjectsPage = () => {
   const { data: session } = useSession();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabId>("explore");
 
   const { data: projects, isLoading } = trpc.project.getSuggested.useQuery(undefined, {
@@ -173,12 +175,12 @@ const ProjectsPage = () => {
                       {project._count.tasks} Open
                     </span>
                   </div>
-                  <Link
-                    href={`/dashboard/projects/${project.id}`}
-                    className="flex items-center gap-1 text-sm font-medium text-brand-purple hover:gap-2 transition-all"
+                  <span
+                    onClick={() => router.push(`/dashboard/projects/${project.id}`)}
+                    className="flex items-center gap-1 text-sm font-medium text-brand-purple hover:gap-2 transition-all cursor-pointer"
                   >
                     View Project <ArrowRight className="size-4" />
-                  </Link>
+                  </span>
                 </div>
               </div>
             ))}

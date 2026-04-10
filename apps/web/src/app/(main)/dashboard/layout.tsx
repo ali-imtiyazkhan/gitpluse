@@ -9,6 +9,7 @@ import { useShowSidebar } from "@/store/useShowSidebar";
 import { IconWrapper } from "@/components/ui/IconWrapper";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function DashboardLayout({
   children,
@@ -17,6 +18,7 @@ export default function DashboardLayout({
 }) {
   const { showFilters } = useFilterStore();
   const { showSidebar, setShowSidebar, activeSidebar } = useShowSidebar();
+  const router = useRouter();
   return (
     <div className="flex w-full h-screen bg-dash-base overflow-hidden">
       {showFilters && <FiltersContainer />}
@@ -46,12 +48,12 @@ export default function DashboardLayout({
               <IconWrapper>
                 <Bars3Icon className="size-5 text-ox-purple" />
               </IconWrapper>
-              <Link
-                href="/"
-                className="ml-4 text-lg font-semibold text-ox-white hover:text-ox-purple transition-colors"
+              <span
+                onClick={() => router.push("/")}
+                className="ml-4 text-lg font-semibold text-ox-white hover:text-ox-purple transition-colors cursor-pointer"
               >
                 Opensox
-              </Link>
+              </span>
             </div>
             <main className="flex-1 h-full overflow-auto bg-ox-content">
               {children}
@@ -65,12 +67,12 @@ export default function DashboardLayout({
             <IconWrapper onClick={() => setShowSidebar(true)}>
               <Bars3Icon className="size-5 text-ox-purple" />
             </IconWrapper>
-            <Link
-              href="/"
-              className="ml-4 text-lg font-semibold text-ox-white hover:text-ox-purple transition-colors"
+            <span
+              onClick={() => router.push("/")}
+              className="ml-4 text-lg font-semibold text-ox-white hover:text-ox-purple transition-colors cursor-pointer"
             >
               Opensox
-            </Link>
+            </span>
           </div>
           <main className="flex-1 h-full overflow-auto bg-ox-content">
             {children}

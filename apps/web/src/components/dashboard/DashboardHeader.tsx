@@ -7,12 +7,13 @@ import { ProfilePic } from "./ProfilePic";
 import { useFilterStore } from "@/store/useFilterStore";
 import { useShowSidebar } from "@/store/useShowSidebar";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export const DashboardHeader = () => {
   const { setShowFilters } = useFilterStore();
   const { setShowSidebar } = useShowSidebar();
   const { data: session } = useSession();
+  const router = useRouter();
   const startHandler = () => {
     setShowFilters(true);
   };
@@ -29,12 +30,12 @@ export const DashboardHeader = () => {
         <IconWrapper className="block xl:hidden" onClick={menuClickHander}>
           <Bars3Icon className="size-4 text-brand-purple"></Bars3Icon>
         </IconWrapper>
-        <Link
-          href="/"
-          className="text-lg md:text-2xl font-medium hover:text-brand-purple transition-colors"
+        <span
+          onClick={() => router.push("/")}
+          className="text-lg md:text-2xl font-medium hover:text-brand-purple transition-colors cursor-pointer"
         >
           Opensox
-        </Link>
+        </span>
       </div>
       <div
         id="header-right-container"

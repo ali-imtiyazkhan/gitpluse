@@ -63,6 +63,7 @@ const ROUTES: RouteConfig[] = [
 export default function Sidebar({ overlay = false }: { overlay?: boolean }) {
   const { setShowSidebar, isCollapsed, toggleCollapsed } = useShowSidebar();
   const { data: session } = useSession();
+  const router = useRouter();
   const pathname = usePathname();
 
   const userRole = (session?.user as any)?.role;
@@ -93,12 +94,12 @@ export default function Sidebar({ overlay = false }: { overlay?: boolean }) {
       {/* Mobile header */}
       <div className="flex justify-between items-center h-16 px-4 border-b border-dash-border xl:hidden bg-dash-surface">
         <div className="flex items-center">
-          <Link
-            href="/"
+          <span
+            onClick={() => router.push("/")}
             className="text-xl font-semibold text-text-primary hover:text-brand-purple transition-colors cursor-pointer"
           >
             OpenSox
-          </Link>
+          </span>
         </div>
         <IconWrapper onClick={() => setShowSidebar(false)}>
           <XMarkIcon className="size-5 text-brand-purple" />
@@ -108,12 +109,12 @@ export default function Sidebar({ overlay = false }: { overlay?: boolean }) {
       {/* Desktop header with collapse */}
       <div className="hidden xl:flex items-center justify-between px-4 py-4 border-b border-dash-border bg-dash-surface">
         {!isCollapsed && (
-          <Link
-            href="/"
+          <span
+            onClick={() => router.push("/")}
             className="text-text-secondary font-semibold tracking-wide select-none text-xl hover:text-brand-purple transition-colors cursor-pointer"
           >
             OpenSox
-          </Link>
+          </span>
         )}
         <IconWrapper
           onClick={toggleCollapsed}
@@ -133,44 +134,43 @@ export default function Sidebar({ overlay = false }: { overlay?: boolean }) {
           const isActive =
             pathname === route.path || pathname.startsWith(`${route.path}/`);
           return (
-            <Link href={route.path} key={route.path}>
-
-              <div
-                className={`w-full h-[44px] flex items-center rounded-md cursor-pointer transition-colors px-2 gap-3 pl-3 group ${
+            <div
+              key={route.path}
+              onClick={() => router.push(route.path)}
+              className={`w-full h-[44px] flex items-center rounded-md cursor-pointer transition-colors px-2 gap-3 pl-3 group ${
+                isActive
+                  ? "bg-brand-purple/10 border-l-2 border-brand-purple"
+                  : "hover:bg-dash-hover"
+              }`}
+            >
+              <span
+                className={`shrink-0 transition-colors ${
                   isActive
-                    ? "bg-brand-purple/10 border-l-2 border-brand-purple"
-                    : "hover:bg-dash-hover"
+                    ? "text-brand-purple"
+                    : "text-text-secondary group-hover:text-text-primary"
                 }`}
               >
-                <span
-                  className={`shrink-0 transition-colors ${
-                    isActive
-                      ? "text-brand-purple"
-                      : "text-text-secondary group-hover:text-text-primary"
-                  }`}
-                >
-                  {route.icon}
-                </span>
-                {!isCollapsed && (
-                  <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                    <h1
-                      className={`text-xs font-medium transition-colors ${
-                        isActive
-                          ? "text-text-primary"
-                          : "text-text-tertiary group-hover:text-text-primary"
-                      }`}
-                    >
-                      {route.label}
-                    </h1>
-                    {route.badge && (
-                      <span className="px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-wider bg-brand-purple/20 text-text-primary rounded border border-brand-purple/30 shrink-0">
-                        {route.badge}
-                      </span>
-                    )}
-                  </div>
-                )}
-              </div>
-            </Link>
+                {route.icon}
+              </span>
+              {!isCollapsed && (
+                <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                  <h1
+                    className={`text-xs font-medium transition-colors ${
+                      isActive
+                        ? "text-text-primary"
+                        : "text-text-tertiary group-hover:text-text-primary"
+                    }`}
+                  >
+                    {route.label}
+                  </h1>
+                  {route.badge && (
+                    <span className="px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-wider bg-brand-purple/20 text-text-primary rounded border border-brand-purple/30 shrink-0">
+                      {route.badge}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
           );
         })}
 

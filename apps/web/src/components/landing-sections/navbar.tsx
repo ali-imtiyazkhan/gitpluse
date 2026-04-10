@@ -5,12 +5,13 @@ import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import Image from "next/image";
 import { Terminal, Github, Menu, X } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const Navbar = () => {
   const { scrollYProgress } = useScroll();
   const pathname = usePathname();
+  const router = useRouter();
   const [showNavbar, setShowNavbar] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
@@ -93,15 +94,13 @@ const Navbar = () => {
           <Github className="w-5 h-5" />
           <span className="text-sm font-medium">Contribute</span>
         </Link>
-        <Link
-          href="/dashboard/home"
-          className="cursor-pointer z-30"
+        <PrimaryButton 
+          onClick={() => router.push("/dashboard/home")}
+          classname="px-3 py-2 text-sm whitespace-nowrap md:px-5 md:py-3 md:text-base"
         >
-          <PrimaryButton classname="px-3 py-2 text-sm whitespace-nowrap md:px-5 md:py-3 md:text-base">
-            <Terminal className="w-4 h-4 md:w-5 md:h-5" />
-            <span>Get Started</span>
-          </PrimaryButton>
-        </Link>
+          <Terminal className="w-4 h-4 md:w-5 md:h-5" />
+          <span>Get Started</span>
+        </PrimaryButton>
       </div>
       {isOpen && (
         <motion.div

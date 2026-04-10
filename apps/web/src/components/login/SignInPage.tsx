@@ -160,9 +160,12 @@ const SignInPage = () => {
 
       <p className="text-gray-400 text-sm z-20">
         Don't have an account?{" "}
-        <Link href="/signup" className="text-white hover:underline cursor-pointer">
+        <span 
+          onClick={() => router.push("/signup")} 
+          className="text-white hover:underline cursor-pointer"
+        >
           Sign up
-        </Link>
+        </span>
       </p>
     </div>
   );
