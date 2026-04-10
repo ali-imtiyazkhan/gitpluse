@@ -106,4 +106,4 @@ Fostering situational awareness and collective decision-making via a live intera
 ## 🛡️ License
 Distributed under the MIT License. See `LICENSE` for more information.
 
-Built with ❤️ by Team Ali | HackTheChain 4.0
+Built by Team Loki | HackTheChain 4.0
