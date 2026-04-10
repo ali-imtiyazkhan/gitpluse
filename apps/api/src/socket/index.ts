@@ -1,6 +1,8 @@
 import { Server as SocketIOServer } from "socket.io";
 import { Server as HTTPServer } from "http";
 
+import { setupCommunityHandlers } from "./community.js";
+
 let io: SocketIOServer;
 
 export const initSocket = (server: HTTPServer, origins: string[]) => {
@@ -14,6 +16,9 @@ export const initSocket = (server: HTTPServer, origins: string[]) => {
 
   io.on("connection", (socket) => {
     console.log(`🔌 Client connected: ${socket.id}`);
+
+    // Register community handlers
+    setupCommunityHandlers(io, socket);
 
     socket.on("disconnect", () => {
       console.log(`🔌 Client disconnected: ${socket.id}`);

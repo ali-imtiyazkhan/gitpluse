@@ -6,6 +6,7 @@ import { getServerSession } from "next-auth/next";
 import { authConfig } from "@/lib/auth/config";
 import { SessionWrapper } from "./SessionWrapper";
 import { TRPCProvider } from "@/providers/trpc-provider";
+import { SocketProvider } from "@/providers/socket-provider";
 import { GeistSans } from "geist/font/sans";
 
 // DM Mono - Used for code, terminal, and monospace text
@@ -57,11 +58,14 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <SessionWrapper session={session}>
-            <TRPCProvider>{children}</TRPCProvider>
+            <TRPCProvider>
+              <SocketProvider>
+                {children}
+              </SocketProvider>
+            </TRPCProvider>
           </SessionWrapper>
         </ThemeProvider>
       </body>
     </html>
   );
 }
-
