@@ -10,12 +10,14 @@ const PrimaryButton = ({
   classname,
   onClick,
   loading = false,
+  type = "button",
 }: {
   children: React.ReactNode;
   animate?: boolean;
   classname?: string;
   onClick?: () => void;
   loading?: boolean;
+  type?: "button" | "submit" | "reset";
 }) => {
   const transition = {
     duration: 0.1,
@@ -23,6 +25,7 @@ const PrimaryButton = ({
   };
   return (
     <motion.button
+      type={type}
       onClick={onClick}
       disabled={loading}
       className={cn(

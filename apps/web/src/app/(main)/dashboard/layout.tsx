@@ -1,5 +1,7 @@
 "use client";
 import Sidebar from "@/components/dashboard/Sidebar";
+import CommunitySidebar from "@/components/dashboard/CommunitySidebar";
+import SidebarSwitcher from "@/components/dashboard/SidebarSwitcher";
 import { AnimatePresence } from "framer-motion";
 import FiltersContainer from "@/components/ui/FiltersContainer";
 import { useFilterStore } from "@/store/useFilterStore";
@@ -14,17 +16,23 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { showFilters } = useFilterStore();
-  const { showSidebar, setShowSidebar } = useShowSidebar();
+  const { showSidebar, setShowSidebar, activeSidebar } = useShowSidebar();
   return (
     <div className="flex w-full h-screen bg-dash-base overflow-hidden">
       {showFilters && <FiltersContainer />}
-      <aside className="hidden xl:block h-full">
-        <Sidebar />
+      <aside className="hidden xl:flex h-full">
+        <SidebarSwitcher />
+        {activeSidebar === "general" ? <Sidebar /> : <CommunitySidebar />}
       </aside>
       <AnimatePresence>
         {showSidebar && (
-          <div className="xl:hidden h-full">
-            <Sidebar overlay />
+          <div className="xl:hidden h-full flex">
+            <SidebarSwitcher />
+            {activeSidebar === "general" ? (
+              <Sidebar overlay />
+            ) : (
+              <CommunitySidebar overlay />
+            )}
           </div>
         )}
       </AnimatePresence>

@@ -37,9 +37,12 @@ model User {
   id             String         @id @default(cuid())
   email          String         @unique
   firstName      String
+  password       String?
   authMethod     String
   createdAt      DateTime       @default(now())
   lastLogin      DateTime       @updatedAt
+  bio            String?
+  skills         Json?
   completedSteps Json?
   accounts       Account[]
 

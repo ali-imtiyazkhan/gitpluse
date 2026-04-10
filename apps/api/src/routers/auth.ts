@@ -76,4 +76,39 @@ export const authRouter = router({
     .mutation(({ input }) => {
       return { token: generateToken(input.email) };
     }),
+  signup: publicProcedure
+    .input(
+      z.object({
+        email: z.string().email(),
+        password: z.string().min(6),
+        firstName: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        return await authService.signup(ctx.db.prisma, input);
+      } catch (error: any) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: error.message || "Signup failed",
+        });
+      }
+    }),
+  login: publicProcedure
+    .input(
+      z.object({
+        email: z.string().email(),
+        password: z.string(),
+      })
+    )
+    .mutation(async ({ input, ctx }) => {
+      try {
+        return await authService.login(ctx.db.prisma, input);
+      } catch (error: any) {
+        throw new TRPCError({
+          code: "UNAUTHORIZED",
+          message: error.message || "Login failed",
+        });
+      }
+    }),
 });

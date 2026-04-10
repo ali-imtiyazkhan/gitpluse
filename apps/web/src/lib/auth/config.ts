@@ -1,6 +1,7 @@
 import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GithubProvider from "next-auth/providers/github";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { serverTrpc } from "../trpc-server";
 
 export const authConfig: NextAuthOptions = {
@@ -16,9 +17,40 @@ export const authConfig: NextAuthOptions = {
         params: { scope: "read:user user:email" },
       },
     }),
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Missing credentials");
+        }
+
+        try {
+          const result = await serverTrpc.auth.login.mutate({
+            email: credentials.email,
+            password: credentials.password,
+          });
+
+          if (result.user) {
+            return {
+              id: result.user.id,
+              email: result.user.email,
+              name: result.user.firstName,
+            };
+          }
+          return null;
+        } catch (error: any) {
+          throw new Error(error.message || "Invalid credentials");
+        }
+      },
+    }),
   ],
   callbacks: {
     async signIn({ user, profile, account }) {
+      if (account?.provider === "credentials") return true;
       try {
         const authResult = await serverTrpc.auth.googleAuth.mutate({
           email: user.email!,

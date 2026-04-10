@@ -58,7 +58,7 @@ export default function Sidebar({ overlay = false }: { overlay?: boolean }) {
   const visibleRoutes = ROUTES.filter(route => !route.adminOnly || isAdmin);
 
   const reqFeatureHandler = () => {
-    window.open("https://github.com/apsinghdev/opensox/issues", "_blank");
+    window.open("https://github.com/ali-imtiyazkhan/gitpulse/issues", "_blank");
   };
 
   const desktopWidth = isCollapsed ? 80 : 288;

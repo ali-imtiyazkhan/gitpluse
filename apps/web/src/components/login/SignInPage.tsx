@@ -5,6 +5,7 @@ import PrimaryButton from "../ui/custom-button";
 import { Google, Github } from "../icons/icons";
 import Image from "next/image";
 import Overlay from "../ui/overlay";
+import Link from "next/link";
 
 const SignInPage = () => {
   const searchParams = useSearchParams();
@@ -75,6 +76,58 @@ const SignInPage = () => {
         </div>
         Continue with GitHub
       </PrimaryButton>
+
+      <div className="w-full max-w-[380px] flex items-center gap-4 z-20 my-2">
+        <div className="h-[1px] bg-[#252525] flex-1"></div>
+        <span className="text-gray-500 text-sm">OR</span>
+        <div className="h-[1px] bg-[#252525] flex-1"></div>
+      </div>
+
+      <form 
+        onSubmit={(e) => {
+          e.preventDefault();
+          const formData = new FormData(e.currentTarget);
+          const email = formData.get("email") as string;
+          const password = formData.get("password") as string;
+          signIn("credentials", { email, password, callbackUrl: safeCallbackUrl });
+        }}
+        className="w-full max-w-[380px] flex flex-col gap-4 z-20"
+      >
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-400">Email Address</label>
+          <input
+            name="email"
+            type="email"
+            className="bg-[#1a1a1a] border border-[#333] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#555] transition-colors"
+            placeholder="john@example.com"
+            required
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm font-medium text-gray-400">Password</label>
+          <input
+            name="password"
+            type="password"
+            className="bg-[#1a1a1a] border border-[#333] rounded-lg px-4 py-3 text-white focus:outline-none focus:border-[#555] transition-colors"
+            placeholder="••••••••"
+            required
+          />
+        </div>
+        
+        <PrimaryButton
+          type="submit"
+          classname="w-full mt-2"
+        >
+          Sign In
+        </PrimaryButton>
+      </form>
+
+      <p className="text-gray-400 text-sm z-20">
+        Don't have an account?{" "}
+        <Link href="/signup" className="text-white hover:underline cursor-pointer">
+          Sign up
+        </Link>
+      </p>
     </div>
   );
 };

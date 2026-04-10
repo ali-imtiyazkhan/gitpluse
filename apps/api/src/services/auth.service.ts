@@ -1,5 +1,6 @@
 import { generateToken } from "../utils/auth.js";
 import type { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 interface GoogleAuthInput {
   email: string;
@@ -206,6 +207,76 @@ export const authService = {
   getSession(user: any) {
     return {
       user,
+    };
+  },
+
+  /**
+   * Handle credentials-based signup
+   */
+  async signup(prisma: any, input: any) {
+    const { email, password, firstName } = input;
+
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (existingUser) {
+      throw new Error("User already exists");
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        firstName: firstName || "User",
+        authMethod: "credentials",
+      },
+    });
+
+    const token = generateToken(email);
+
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+      },
+      token,
+    };
+  },
+
+  /**
+   * Handle credentials-based login
+   */
+  async login(prisma: any, input: any) {
+    const { email, password } = input;
+
+    const user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user || !user.password) {
+      throw new Error("Invalid email or password");
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      throw new Error("Invalid email or password");
+    }
+
+    const token = generateToken(email);
+
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+      },
+      token,
     };
   },
 };

@@ -1,16 +1,21 @@
 import { PrismaClient, Role, MemberStatus } from "@prisma/client";
 import type { ExtendedPrismaClient } from "../prisma.js";
 import { emitActivity } from "../socket/index.js";
+import { skillExtractorService } from "./skill-extractor.service.js";
 
 export const memberService = {
   /**
    * Apply to join the community
    */
-  async applyToJoin(prisma: ExtendedPrismaClient | PrismaClient, userId: string) {
+  async applyToJoin(prisma: ExtendedPrismaClient | PrismaClient, userId: string, bio?: string) {
+    const skills = bio ? skillExtractorService.extractSkills(bio) : undefined;
+    
     const user = await prisma.user.update({
       where: { id: userId },
       data: {
         status: MemberStatus.PENDING,
+        bio: bio || null,
+        skills: skills ? (skills as any) : null,
       },
     });
 

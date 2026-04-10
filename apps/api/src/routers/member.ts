@@ -74,4 +74,13 @@ export const memberRouter = router({
   getAuditLogs: adminProcedure.query(async ({ ctx }) => {
     return await memberService.getAuditLogs(ctx.db.prisma);
   }),
+  /**
+   * Analyze skills from a block of text
+   */
+  analyzeSkills: protectedProcedure
+    .input(z.object({ text: z.string() }))
+    .mutation(async ({ input }) => {
+      const { skillExtractorService } = await import("../services/skill-extractor.service.js");
+      return skillExtractorService.extractSkills(input.text);
+    }),
 });

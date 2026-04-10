@@ -1,282 +1,122 @@
-<h1 align="center">Opensox AI </h1>
+<div align="center">
+  <img src="./gitpulse_social_preview_1775854265168.png" alt="GitPulse Banner" width="100%" />
 
-<p align="center">
-    Building 21st century open-source infrastructure
-    <br />
-    <a href="https://opensox.ai"><strong>Learn more »</strong></a>
-    <br />
-    <br />
-    <a href="#introduction"><strong>Introduction</strong></a> ·
-    <a href="#tech-stack"><strong>Tech Stack</strong></a> ·
-    <a href="#contributing"><strong>Contributing</strong></a> ·
-    <a href="https://discord.gg/zbHzgMNBrm"><strong>Discord</strong></a>
-</p>
+  # ⚡ GitPulse
+  **Empowering the next generation of open-source contributors with AI.**
 
+  [![Turbo](https://img.shields.io/badge/turbo-2.1.2-blueviolet?style=flat-square&logo=turborepo)](https://turbo.build/repo)
+  [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)](https://nextjs.org/)
+  [![tRPC](https://img.shields.io/badge/tRPC-v10-blue?style=flat-square&logo=trpc)](https://trpc.io/)
+  [![Typescript](https://img.shields.io/badge/Typescript-5.4-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+  [![License](https://img.shields.io/badge/License-AGPL%203.0-green?style=flat-square)](./LICENSE)
 
-<br/>
+  [Introduction](#-introduction) • [Features](#-features) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [Contributing](#-contributing)
+</div>
 
-## Introduction
+---
 
-Opensox AI is a platform designed to help developers quickly discover open-source projects based on their specific criteria so that you can start contributing in seconds, not in days.
+## 🚀 Introduction
 
-## Tech Stack
+**GitPulse** is a state-of-the-art platform designed to bridge the gap between developers and open-source projects. By leveraging advanced AI analysis, GitPulse helps you discover relevant repositories, analyze your existing skills from your resume, and start contributing in seconds rather than days.
 
-- [Next.js](https://nextjs.org/) – framework
-- [TypeScript](https://www.typescriptlang.org/) – language
-- [Tailwind](https://tailwindcss.com/) – CSS
-- [Prisma](https://www.prisma.io/) – ORM
-- [NextAuth.js](https://next-auth.js.org/) – auth
-- [Turborepo](https://turbo.build/repo) – monorepo
-- [Vercel](https://vercel.com/) – deployments
-- [Railway](https://railway.com/) – deployments
+## ✨ Features
 
+- 🧠 **AI Resume Analyzer**: Paste your bio or resume to instantly extract and categorize your technical expertise.
+- 🔍 **Smart Discovery**: Find open-source projects that match your specific skill set and interests.
+- ⚡ **Seamless Integration**: Connect with GitHub and track your contributions in real-time.
+- 🛠️ **Developer Dashboard**: A premium, centralized hub for managing your open-source journey.
 
-## Contributing
+## 🛠️ Tech Stack
 
-We love our contributors! Here’s how you can contribute:
+GitPulse is built with a modern, high-performance monorepo architecture:
 
-- [Open an issue](https://github.com/apsinghdev/opensox/issues) if you believe you’ve encountered a bug.
-- Make a [pull request](https://github.com/apsinghdev/opensox/pulls) to add new features, improve quality of life, or fix bugs.
+- **Frontend**: [Next.js](https://nextjs.org/) (App Router), [Tailwind CSS](https://tailwindcss.com/), [Framer Motion](https://www.framer.com/motion/)
+- **Backend API**: [Express.js](https://expressjs.com/) with [tRPC](https://trpc.io/) for end-to-end type safety
+- **Database**: [PostgreSQL](https://www.postgresql.org/) with [Prisma ORM](https://www.prisma.io/)
+- **Monorepo Tooling**: [Turborepo](https://turbo.build/repo) and [pnpm](https://pnpm.io/)
+- **Authentication**: [NextAuth.js](https://next-auth.js.org/) with Google & GitHub providers
 
-### Setting up locally
+---
 
-Opensox AI's stack consists of the following elements:
-
-- A backend API built with tRPC and Express.js
-- A frontend written in Next.js and TypeScript
-- A PostgreSQL database
-- A Redis database (in process)
-- What's for AI? Coming very soon…
-
-#### Prerequisites
-
-Opensox needs [TypeScript](https://www.typescriptlang.org/download/) and [Node.js >= 18](https://nodejs.org/en/download/package-manager) installations.
-
-## Setup environment variables
-
-Create environment files for both the backend and the frontend before running the apps.
-
-### Backend (`apps/api/.env`)
-
-Copy the example environment file and update it with your values:
-
-```bash
-cd apps/api
-cp .env.example .env
-```
-
-Then edit `apps/api/.env` and fill in the required values:
-
-```bash
-# Required
-DATABASE_URL="postgresql://USER:PASSWORD@localhost:5432/opensox?schema=public"
-JWT_SECRET="replace-with-a-strong-random-secret"
-
-# Optional (good defaults shown)
-PORT=8080
-CORS_ORIGINS=http://localhost:3000
-NODE_ENV=development
-
-# Optional but needed for GitHub queries to work
-# Generate a classic token with "public_repo" access at https://github.com/settings/tokens
-GITHUB_PERSONAL_ACCESS_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-```
-
-Notes:
-- DATABASE_URL: point this to your PostgreSQL instance. Example for local Postgres is shown above.
-- JWT_SECRET: generate one, e.g. `openssl rand -base64 32` or `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`.
-- CORS_ORIGINS: comma-separated list of allowed origins. Keep `http://localhost:3000` for local web app.
-
-### Frontend (`apps/web/.env.local`)
-
-Create a file at `apps/web/.env.local` with:
-
-```bash
-# Required
-NEXT_PUBLIC_API_URL="http://localhost:8080"
-GOOGLE_CLIENT_ID="your-google-oauth-client-id"
-GOOGLE_CLIENT_SECRET="your-google-oauth-client-secret"
-NEXTAUTH_SECRET="replace-with-a-strong-random-secret"
-
-# Recommended for production (optional for local dev)
-NEXTAUTH_URL="http://localhost:3000"
-
-# Optional analytics (PostHog)
-# If you don't use PostHog, you can omit these
-# NEXT_PUBLIC_POSTHOG_KEY="phc_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-# NEXT_PUBLIC_POSTHOG_HOST="https://us.i.posthog.com" # or https://app.posthog.com
-```
-
-Notes:
-- NEXT_PUBLIC_API_URL must point to the backend base URL; the frontend calls `${NEXT_PUBLIC_API_URL}/api/...` for auth and data.
-- Google OAuth: create credentials in Google Cloud Console (OAuth 2.0 Client ID), add Authorized redirect URIs for NextAuth (e.g., `http://localhost:3000/api/auth/callback/google`).
-- NEXTAUTH_SECRET: generate one just like `JWT_SECRET`. It’s used by NextAuth; it can be different from the backend secret.
-
-After creating these files, restart your dev servers so changes take effect.
-
-
-## Database setup (migrations and seed)
-
-Run these steps once your `DATABASE_URL` is set:
-
-```bash
-cd apps/api
-
-# Generate Prisma client (optional if already generated)
-npx prisma generate
-
-# Apply migrations locally
-npx prisma migrate dev --name init
-```
-
-Seed initial data so features relying on it work correctly:
-
-- Option A (recommended): use Prisma Studio to insert the initial row
-
-  ```bash
-  npx prisma studio
-  ```
-
-  Then open the `QueryCount` model and create a row with:
-  - `id`: 1
-  - `total_queries`: 0
-
-- Option B: insert directly via SQL (replace the connection string as needed)
-
-  ```bash
-  psql "postgresql://USER:PASSWORD@localhost:5432/opensox" \
-    -c "INSERT INTO \"QueryCount\" (id, total_queries) VALUES (1, 0) ON CONFLICT (id) DO NOTHING;"
-  ```
-
-
-## Setup environment
-
-1. Fork and clone the opensox repo
-
-```bash
-git clone https://github.com/[your-github-username]/opensox.git
-```
-
-2. `cd` into `opensox/apps/web` and install dependencies
-
-```bash
-pnpm install
-```
-
-Now run the dev server:
-
-```bash
-pnpm run dev
-```
-
-Congrats! Your frontend is running on `localhost:3000`.
-
-3. `cd` into `opensox/apps/api` and install dependencies
-
-```bash
-npm install
-```
-
-Now run the server:
-
-```bash
-pnpm run dev
-```
-
-Voila! Your API server is running on `localhost:4000`.
-
-Now you can access your app at `http://localhost:3000`.
-
-## Running the API with Docker
-
-Alternatively, you can run the API server using Docker. A `Dockerfile` is provided in the root directory.
+## 🏁 Getting Started
 
 ### Prerequisites
 
-- [Docker](https://docs.docker.com/get-docker/) installed on your machine
+- [Node.js](https://nodejs.org/) (>= 18.0.0)
+- [pnpm](https://pnpm.io/installation) (>= 8.0.0)
+- [PostgreSQL](https://www.postgresql.org/download/) instance
 
-### Building and Running
+### 1. Installation
 
-1. Make sure you have your `.env` file set up in `apps/api/.env`. You can copy from `.env.example` (see [Backend environment variables](#backend-appsapienv) section above)
-
-2. From the root directory, build the Docker image:
-
-```bash
-docker build -t opensox-api .
-```
-
-3. Run the container with your environment variables:
+Clone the repository and install dependencies from the root:
 
 ```bash
-docker run -p 4000:4000 \
-  --env-file apps/api/.env \
-  opensox-api
+git clone https://github.com/yourusername/gitpulse.git
+cd gitpulse
+pnpm install
 ```
 
-Or if you prefer to pass environment variables individually:
+### 2. Environment Setup
+
+You need to configure environment variables for both the API and Web applications.
+
+#### Backend (`apps/api/.env`)
+```bash
+DATABASE_URL="postgresql://user:password@localhost:5432/gitpulse?schema=public"
+JWT_SECRET="your-super-secret-key"
+PORT=8080
+CORS_ORIGINS=http://localhost:3000
+GITHUB_PERSONAL_ACCESS_TOKEN="your_github_pat"
+```
+
+#### Frontend (`apps/web/.env.local`)
+```bash
+NEXT_PUBLIC_API_URL="http://localhost:8080"
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="your-nextauth-secret"
+GOOGLE_CLIENT_ID="xxx.apps.googleusercontent.com"
+GOOGLE_CLIENT_SECRET="xxx"
+```
+
+### 3. Database Migration
+
+Run the migrations to set up your database schema:
 
 ```bash
-docker run -p 4000:4000 \
-  -e DATABASE_URL="postgresql://USER:PASSWORD@host.docker.internal:5432/opensox?schema=public" \
-  -e JWT_SECRET="your-secret" \
-  -e PORT=4000 \
-  opensox-api
+pnpm turbo db:push # or use npx prisma migrate dev inside apps/api
 ```
 
-**Note:** When using Docker, if your database is running on your host machine (not in a container), use `host.docker.internal` instead of `localhost` in your `DATABASE_URL`.
+### 4. Running Locally
 
-Your API server will be available at `http://localhost:4000`.
-
-### Using Docker Compose (Optional)
-
-For a complete setup with PostgreSQL, you can create a `docker-compose.yml` file:
-
-```yaml
-version: '3.8'
-services:
-  postgres:
-    image: postgres:15
-    environment:
-      POSTGRES_USER: opensox
-      POSTGRES_PASSWORD: opensox
-      POSTGRES_DB: opensox
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-
-  api:
-    build: .
-    ports:
-      - "4000:4000"
-    environment:
-      DATABASE_URL: postgresql://opensox:opensox@postgres:5432/opensox?schema=public
-      JWT_SECRET: your-secret-key
-      PORT: 4000
-      NODE_ENV: production
-    depends_on:
-      - postgres
-
-volumes:
-  postgres_data:
-```
-
-Then run:
+Start the development servers for all applications using Turbo:
 
 ```bash
-docker-compose up -d
+pnpm dev
 ```
 
-## Our contributors
+The applications will be available at:
+- **Web App**: [http://localhost:3000](http://localhost:3000)
+- **API Server**: [http://localhost:8080](http://localhost:8080)
 
-<a href="https://github.com/apsinghdev/opensox/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=apsinghdev/opensox" />
-</a>
+---
 
-## Repo Activity
+## 🤝 Contributing
 
-![Opensox readme activity](https://repobeats.axiom.co/api/embed/e6a9549f6e68c7666aa0524d83647bd34a97b4ca.svg "Repobeats analytics image")
+We welcome contributions! Please follow these steps:
 
-## License
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git checkout -b feature/AmazingFeature`)
+5. Open a Pull Request
 
-[AGPL 3.0](./LICENSE)
+---
+
+## 📄 License
+
+Distributed under the AGPL 3.0 License. See `LICENSE` for more information.
+
+<div align="center">
+  <br />
+  Built with ❤️ for the Open Source Community
+</div>
