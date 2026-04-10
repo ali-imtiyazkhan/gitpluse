@@ -2,36 +2,44 @@ import type { ExtractedSkills } from "./skill-extractor.service.js";
 
 export const aiService = {
   async extractSkillsWithAI(text: string): Promise<ExtractedSkills> {
-    const apiKey = process.env.AI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     
-    // If no API key is provided, we fall back to a mock AI response 
-    // that uses the rule-based extractor to avoid breaking the app
     if (!apiKey) {
-      console.warn("AI_API_KEY not found. Falling back to rule-based extraction.");
+      console.warn("⚠️ GEMINI_API_KEY not found. Using local skill-extractor fallback.");
       const { skillExtractorService } = await import("./skill-extractor.service.js");
       return skillExtractorService.extractSkills(text);
     }
 
     try {
-      // Placeholder for actual LLM call (e.g. Claude, OpenAI, Gemini)
-      // This is a generic implementation using fetch
-      const prompt = `
-        You are a technical recruiter. Extract professional skills from the following resume text.
-        Return ONLY a JSON object with these keys: 
-        "languages", "frameworks", "tools", "technical", "soft".
-        Each key should map to an array of strings.
-        
-        Text: ${text.substring(0, 10000)}
-      `;
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: `Extract technical skills from this resume text. 
+              Output ONLY a raw JSON object with arrays: languages, frameworks, tools, technical, soft.
+              
+              Text: ${text.substring(0, 10000)}`
+            }]
+          }]
+        })
+      });
 
-      // Example for a generic REST AI endpoint
-      // const response = await fetch("https://api.your-ai-provider.com/v1/chat/completions", { ... });
+      const data = await response.json();
+      const rawJson = data.candidates?.[0]?.content?.parts?.[0]?.text;
       
-      // For now, we return the fallback since we don't know the exact provider the user wants
-      const { skillExtractorService } = await import("./skill-extractor.service.js");
-      return skillExtractorService.extractSkills(text);
+      if (rawJson) {
+        // Find JSON block if AI included markdown markers
+        const jsonMatch = rawJson.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          return JSON.parse(jsonMatch[0]);
+        }
+      }
+
+      throw new Error("AI did not return a valid JSON structure");
     } catch (error) {
-      console.error("AI extraction error:", error);
+      console.error("❌ AI Analysis Error:", error);
       const { skillExtractorService } = await import("./skill-extractor.service.js");
       return skillExtractorService.extractSkills(text);
     }

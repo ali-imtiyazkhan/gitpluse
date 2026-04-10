@@ -91,6 +91,7 @@ export const memberRouter = router({
         const { pdfService } = await import("../services/pdf.service.js");
         const buffer = Buffer.from(input.fileData.split(",")[1] || input.fileData, "base64");
         textToAnalyze = await pdfService.extractText(buffer);
+        console.log("📄 PDF Text Extracted. Length:", textToAnalyze.length);
       }
 
       if (!textToAnalyze) {
@@ -99,6 +100,7 @@ export const memberRouter = router({
 
       const { aiService } = await import("../services/ai.service.js");
       const skills = await aiService.extractSkillsWithAI(textToAnalyze);
+      console.log("🎯 Extracted Skills:", Object.values(skills).flat().length, "found");
       
       // Save skills to user profile
       await ctx.db.prisma.user.update({
