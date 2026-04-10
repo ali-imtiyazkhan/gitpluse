@@ -30,6 +30,7 @@
     "@opensox/shared": "workspace:*",
     "@prisma/client": "^5.22.0",
     "@trpc/server": "^11.7.2",
+    "@types/pdf-parse": "^1.1.5",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
@@ -37,6 +38,7 @@
     "express-rate-limit": "^7.5.0",
     "helmet": "^7.2.0",
     "jsonwebtoken": "^9.0.2",
+    "pdf-parse": "^2.4.5",
     "socket.io": "^4.8.3",
     "superjson": "^2.2.5",
     "zod": "^4.1.9"

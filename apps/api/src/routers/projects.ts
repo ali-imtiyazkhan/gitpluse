@@ -41,6 +41,7 @@ export const projectRouter = router({
         name: z.string().min(1),
         description: z.string().optional(),
         repoUrl: z.string().url().optional().or(z.literal("")),
+        skills: z.array(z.string()).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -61,12 +62,20 @@ export const projectRouter = router({
         description: z.string().optional(),
         status: z.nativeEnum(ProjectStatus).optional(),
         repoUrl: z.string().url().optional(),
+        skills: z.array(z.string()).optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
       const { id, ...data } = input;
       return await projectService.updateProject(ctx.db.prisma, id, data);
     }),
+
+  /**
+   * Get suggested projects based on user skills
+   */
+  getSuggested: protectedProcedure.query(async ({ ctx }) => {
+    return await projectService.getSuggestedProjects(ctx.db.prisma, ctx.user!.id);
+  }),
 
   /**
    * Delete project (Owner only - placeholder for more complex check)

@@ -35,7 +35,7 @@ const ProjectsPage = () => {
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState<TabId>("explore");
 
-  const { data: projects, isLoading } = trpc.project.list.useQuery(undefined, {
+  const { data: projects, isLoading } = trpc.project.getSuggested.useQuery(undefined, {
     enabled: activeTab === "community",
   });
   const { data: stats } = trpc.project.getStats.useQuery(undefined, {
@@ -139,15 +139,22 @@ const ProjectsPage = () => {
                   <div className="p-2 rounded-lg bg-brand-purple/10 border border-brand-purple/20">
                     <LayoutGrid className="size-5 text-brand-purple" />
                   </div>
-                  <span
-                    className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
-                      project.status === "ACTIVE"
-                        ? "bg-green-500/10 text-green-500"
-                        : "bg-text-tertiary/10 text-text-tertiary"
-                    }`}
-                  >
-                    {project.status}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {(project as any).matchScore > 0 && (
+                      <span className="px-2 py-0.5 rounded bg-brand-purple/10 text-brand-purple text-[10px] font-bold uppercase border border-brand-purple/20">
+                        {Math.floor((project as any).matchScore)}% Match
+                      </span>
+                    )}
+                    <span
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                        project.status === "ACTIVE"
+                          ? "bg-green-500/10 text-green-500"
+                          : "bg-text-tertiary/10 text-text-tertiary"
+                      }`}
+                    >
+                      {project.status}
+                    </span>
+                  </div>
                 </div>
 
                 <h3 className="text-lg font-semibold text-text-primary group-hover:text-brand-purple transition-colors">

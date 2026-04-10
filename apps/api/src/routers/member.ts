@@ -78,9 +78,34 @@ export const memberRouter = router({
    * Analyze skills from a block of text
    */
   analyzeSkills: protectedProcedure
-    .input(z.object({ text: z.string() }))
-    .mutation(async ({ input }) => {
-      const { skillExtractorService } = await import("../services/skill-extractor.service.js");
-      return skillExtractorService.extractSkills(input.text);
+    .input(z.object({ 
+      text: z.string().optional(),
+      fileData: z.string().optional(), // Base64 encoded file
+      fileType: z.string().optional()
+    }))
+    .mutation(async ({ input, ctx }) => {
+      let textToAnalyze = input.text || "";
+
+      // Handle PDF extraction if file is provided
+      if (input.fileData && input.fileType === "application/pdf") {
+        const { pdfService } = await import("../services/pdf.service.js");
+        const buffer = Buffer.from(input.fileData.split(",")[1] || input.fileData, "base64");
+        textToAnalyze = await pdfService.extractText(buffer);
+      }
+
+      if (!textToAnalyze) {
+        throw new Error("No text or file provided for analysis");
+      }
+
+      const { aiService } = await import("../services/ai.service.js");
+      const skills = await aiService.extractSkillsWithAI(textToAnalyze);
+      
+      // Save skills to user profile
+      await ctx.db.prisma.user.update({
+        where: { id: ctx.user!.id },
+        data: { skills: skills as any },
+      });
+
+      return skills;
     }),
 });

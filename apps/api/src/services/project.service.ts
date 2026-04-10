@@ -8,7 +8,7 @@ export const projectService = {
    */
   async createProject(
     prisma: ExtendedPrismaClient | PrismaClient,
-    data: { name: string; description?: string | undefined; repoUrl?: string | undefined; ownerId: string }
+    data: { name: string; description?: string | undefined; repoUrl?: string | undefined; ownerId: string; skills?: any | undefined }
   ) {
     const project = await prisma.project.create({
       data: {
@@ -16,6 +16,7 @@ export const projectService = {
         description: data.description ?? null,
         repoUrl: data.repoUrl ?? null,
         ownerId: data.ownerId,
+        skills: data.skills ?? null,
       },
     });
 
@@ -26,7 +27,6 @@ export const projectService = {
 
     return project;
   },
-
 
   /**
    * List all projects
@@ -46,6 +46,52 @@ export const projectService = {
       },
       orderBy: { createdAt: "desc" },
     });
+  },
+
+  /**
+   * Get project suggestions based on user skills
+   */
+  async getSuggestedProjects(prisma: ExtendedPrismaClient | PrismaClient, userId: string) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { skills: true },
+    });
+
+    const projects = await prisma.project.findMany({
+      where: { status: ProjectStatus.ACTIVE },
+      include: {
+        owner: { select: { firstName: true } },
+        _count: { select: { tasks: true } },
+      },
+    });
+
+    if (!user?.skills || !Array.isArray(projects)) return projects;
+
+    // Flatten user skills
+    const userSkillsSet = new Set<string>();
+    const userSkills = user.skills as any;
+    
+    Object.values(userSkills).forEach((category: any) => {
+      if (Array.isArray(category)) {
+        category.forEach((skill: string) => userSkillsSet.add(skill.toLowerCase()));
+      }
+    });
+
+    // Score projects
+    const scoredProjects = projects.map(project => {
+      const projectSkills = (project.skills as string[]) || [];
+      if (projectSkills.length === 0) return { ...project, matchScore: 0 };
+
+      const matches = projectSkills.filter(skill => 
+        userSkillsSet.has(skill.toLowerCase())
+      );
+
+      const matchScore = Math.round((matches.length / projectSkills.length) * 100);
+      return { ...project, matchScore };
+    });
+
+    // Sort by score
+    return scoredProjects.sort((a, b) => b.matchScore - a.matchScore);
   },
 
   /**
@@ -89,7 +135,13 @@ export const projectService = {
   async updateProject(
     prisma: ExtendedPrismaClient | PrismaClient,
     id: string,
-    data: { name?: string | undefined; description?: string | undefined; status?: ProjectStatus | undefined; repoUrl?: string | undefined }
+    data: { 
+      name?: string | undefined; 
+      description?: string | undefined; 
+      status?: ProjectStatus | undefined; 
+      repoUrl?: string | undefined; 
+      skills?: any | undefined 
+    }
   ) {
     return await prisma.project.update({
       where: { id },
@@ -98,6 +150,7 @@ export const projectService = {
         ...(data.description !== undefined && { description: data.description ?? null }),
         ...(data.status && { status: data.status }),
         ...(data.repoUrl !== undefined && { repoUrl: data.repoUrl ?? null }),
+        ...(data.skills !== undefined && { skills: data.skills }),
       },
     });
   },

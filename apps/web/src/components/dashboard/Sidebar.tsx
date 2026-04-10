@@ -53,6 +53,11 @@ const ROUTES: RouteConfig[] = [
     icon: <ShieldCheckIcon className="size-5" />,
     adminOnly: true,
   },
+  {
+    path: "/dashboard/community/analyzer",
+    label: "AI Analyzer",
+    icon: <SparklesIcon className="size-5" />,
+  },
 ];
 
 export default function Sidebar({ overlay = false }: { overlay?: boolean }) {
