@@ -61,7 +61,7 @@ const ROUTES: RouteConfig[] = [
 ];
 
 export default function Sidebar({ overlay = false }: { overlay?: boolean }) {
-  const { setShowSidebar, isCollapsed, toggleCollapsed } = useShowSidebar();
+  const { setShowSidebar, isCollapsed, toggleCollapsed, setActiveSidebar } = useShowSidebar();
   const { data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
@@ -136,7 +136,12 @@ export default function Sidebar({ overlay = false }: { overlay?: boolean }) {
           return (
             <div
               key={route.path}
-              onClick={() => router.push(route.path)}
+              onClick={() => {
+                router.push(route.path);
+                if (route.path.includes("community")) {
+                  setActiveSidebar("community");
+                }
+              }}
               className={`w-full h-[44px] flex items-center rounded-md cursor-pointer transition-colors px-2 gap-3 pl-3 group ${
                 isActive
                   ? "bg-brand-purple/10 border-l-2 border-brand-purple"

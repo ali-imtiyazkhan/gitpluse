@@ -1,4 +1,5 @@
 "use client";
+import React, { useEffect } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import CommunitySidebar from "@/components/dashboard/CommunitySidebar";
 import SidebarSwitcher from "@/components/dashboard/SidebarSwitcher";
@@ -9,7 +10,7 @@ import { useShowSidebar } from "@/store/useShowSidebar";
 import { IconWrapper } from "@/components/ui/IconWrapper";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export default function DashboardLayout({
   children,
@@ -17,8 +18,17 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { showFilters } = useFilterStore();
-  const { showSidebar, setShowSidebar, activeSidebar } = useShowSidebar();
+  const { showSidebar, setShowSidebar, activeSidebar, setActiveSidebar } = useShowSidebar();
   const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (pathname.includes("/community")) {
+      setActiveSidebar("community");
+    } else {
+      setActiveSidebar("general");
+    }
+  }, [pathname, setActiveSidebar]);
   return (
     <div className="flex w-full h-screen bg-dash-base overflow-hidden">
       {showFilters && <FiltersContainer />}

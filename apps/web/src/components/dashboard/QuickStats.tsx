@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useShowSidebar } from "@/store/useShowSidebar";
 import { useSocket } from "@/providers/socket-provider";
 import { trpc } from "@/lib/trpc";
 import {
@@ -49,6 +50,7 @@ const roleIcons: Record<string, React.ReactNode> = {
 const QuickStats = () => {
   const { data: session } = useSession();
   const router = useRouter();
+  const { setActiveSidebar } = useShowSidebar();
   const { isConnected } = useSocket();
   const { data: globalStats } = trpc.project.getStats.useQuery();
   
@@ -76,7 +78,10 @@ const QuickStats = () => {
       subtext: role === "OWNER" ? "Full access" : role === "MAINTAINER" ? "Manage projects" : role === "CONTRIBUTOR" ? "Contribute" : "View only",
       valueClass: role === "OWNER" ? "text-amber-400" : role === "MAINTAINER" ? "text-brand-purple" : role === "CONTRIBUTOR" ? "text-emerald-400" : "text-text-muted",
       glowClass: "",
-      onClick: () => router.push("/dashboard/community/members"),
+      onClick: () => {
+        router.push("/dashboard/community/members");
+        setActiveSidebar("community");
+      },
     },
     {
       label: "Open Projects",
@@ -85,7 +90,10 @@ const QuickStats = () => {
       subtext: "Active this week",
       valueClass: "text-text-primary",
       glowClass: "",
-      onClick: () => router.push("/dashboard/projects"),
+      onClick: () => {
+        router.push("/dashboard/projects");
+        setActiveSidebar("general");
+      },
     },
     {
       label: "Contributors",
@@ -94,7 +102,10 @@ const QuickStats = () => {
       subtext: "Community members",
       valueClass: "text-text-primary",
       glowClass: "",
-      onClick: () => router.push("/dashboard/community/members"),
+      onClick: () => {
+        router.push("/dashboard/community/members");
+        setActiveSidebar("community");
+      },
     },
   ];
 

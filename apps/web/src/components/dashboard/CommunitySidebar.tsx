@@ -55,7 +55,7 @@ const COMMUNITY_ROUTES = [
 ];
 
 export default function CommunitySidebar({ overlay = false }: { overlay?: boolean }) {
-  const { setShowSidebar, isCollapsed } = useShowSidebar();
+  const { setShowSidebar, isCollapsed, setActiveSidebar } = useShowSidebar();
   const pathname = usePathname();
   const router = useRouter();
 
@@ -101,7 +101,12 @@ export default function CommunitySidebar({ overlay = false }: { overlay?: boolea
           return (
             <div
               key={route.path}
-              onClick={() => router.push(route.path)}
+              onClick={() => {
+                router.push(route.path);
+                if (!route.path.includes("community")) {
+                  setActiveSidebar("general");
+                }
+              }}
               className={`w-full h-[40px] flex items-center rounded-lg cursor-pointer transition-all px-3 gap-3 group ${
                 isActive
                   ? "bg-brand-purple/10 text-brand-purple"
