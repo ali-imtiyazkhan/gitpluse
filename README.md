@@ -2,121 +2,168 @@
   <img src="./gitpulse_social_preview_1775854265168.png" alt="GitPulse Banner" width="100%" />
 
   # ⚡ GitPulse
-  **Empowering the next generation of open-source contributors with AI.**
-
+  ### Next-Generation Open-Source Infrastructure powered by AI
+  
   [![Turbo](https://img.shields.io/badge/turbo-2.1.2-blueviolet?style=flat-square&logo=turborepo)](https://turbo.build/repo)
   [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)](https://nextjs.org/)
   [![tRPC](https://img.shields.io/badge/tRPC-v10-blue?style=flat-square&logo=trpc)](https://trpc.io/)
   [![Typescript](https://img.shields.io/badge/Typescript-5.4-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
+  [![Tailwind](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
   [![License](https://img.shields.io/badge/License-AGPL%203.0-green?style=flat-square)](./LICENSE)
 
-  [Introduction](#-introduction) • [Features](#-features) • [Tech Stack](#-tech-stack) • [Getting Started](#-getting-started) • [Contributing](#-contributing)
+  [Overview](#-overview) • [Key Features](#-key-features) • [Architecture](#-architecture) • [API Guide](#-api-guide) • [Setup](#-getting-started) • [Roadmap](#-roadmap)
 </div>
 
 ---
 
-## 🚀 Introduction
+## 📖 Overview
 
-**GitPulse** is a state-of-the-art platform designed to bridge the gap between developers and open-source projects. By leveraging advanced AI analysis, GitPulse helps you discover relevant repositories, analyze your existing skills from your resume, and start contributing in seconds rather than days.
+**GitPulse** is a revolutionary developer platform designed to accelerate open-source contributions. Traditionally, finding the right project and understanding if your skills match can take days. GitPulse leverages **AI-driven skill extraction** to match developers with projects that perfectly align with their expertise, making "First Good Issue" discovery instantaneous.
 
-## ✨ Features
+> **"Building 21st-century open-source infrastructure from the ground up."**
 
-- 🧠 **AI Resume Analyzer**: Paste your bio or resume to instantly extract and categorize your technical expertise.
-- 🔍 **Smart Discovery**: Find open-source projects that match your specific skill set and interests.
-- ⚡ **Seamless Integration**: Connect with GitHub and track your contributions in real-time.
-- 🛠️ **Developer Dashboard**: A premium, centralized hub for managing your open-source journey.
+---
 
-## 🛠️ Tech Stack
+## ✨ Key Features
 
-GitPulse is built with a modern, high-performance monorepo architecture:
+### 🧠 AI Skill Extraction
+- **Resume Parsing**: Instantly analyze professional bios or full resumes to extract technical competencies.
+- **Auto-Categorization**: Automatically classifies skills into Languages, Frameworks, Tools, and Specializations.
+- **Dynamic Profiling**: Builds a living developer profile that evolves with your contributions.
 
-- **Frontend**: [Next.js](https://nextjs.org/) (App Router), [Tailwind CSS](https://tailwindcss.com/), [Framer Motion](https://www.framer.com/motion/)
-- **Backend API**: [Express.js](https://expressjs.com/) with [tRPC](https://trpc.io/) for end-to-end type safety
-- **Database**: [PostgreSQL](https://www.postgresql.org/) with [Prisma ORM](https://www.prisma.io/)
-- **Monorepo Tooling**: [Turborepo](https://turbo.build/repo) and [pnpm](https://pnpm.io/)
-- **Authentication**: [NextAuth.js](https://next-auth.js.org/) with Google & GitHub providers
+### 🔍 Project Discovery & Intel
+- **GitHub Deep Discovery**: Search and filter global repositories based on specific tech-stack requirements.
+- **Issue Matching**: Highlights issues that specifically match your identified skills.
+- **Contribution Tracking**: Real-time integration with GitHub to monitor pull requests and project activity.
+
+### 🛠️ Developer Management
+- **Universal Dashboard**: A sleek, dark-mode focused workspace for managing multiple projects and tasks.
+- **Monorepo Workflow**: High-performance architecture ensuring lightning-fast development cycles.
+- **Multi-tenant Community**: Dedicated sidebars and switchers for navigating different developer communities.
+
+---
+
+## 🏗️ Architecture
+
+GitPulse is built as a highly modular **Turborepo** monorepo, ensuring code reusability and type safety from database to UI.
+
+```text
+gitpluse/
+├── apps/
+│   ├── web/               # Next.js 14 Frontend (App Router, tRPC Client)
+│   └── api/               # Express.js + tRPC Backend (Prisma, AI Services)
+├── packages/
+│   ├── shared/            # Shared Types, Zod Schemas & Utilities
+│   ├── ui/                # Internal Design System & Custom Components
+│   ├── typescript-config/ # Global TS configuration
+│   └── eslint-config/     # Global Linting rules
+├── docker/                # Deployment and container orchestration
+└── turbo.json             # Monorepo build pipeline configuration
+```
+
+### Technical Core
+- **Type Safety**: End-to-end type safety using **tRPC** and **Zod**.
+- **Database**: **PostgreSQL** with **Prisma** for robust relational data mapping.
+- **Design System**: Built on **Tailwind CSS** with custom components and premium animations via **Framer Motion**.
+
+---
+
+## 📡 API Guide (tRPC)
+
+The backend exposes a type-safe API via tRPC. Below are the primary namespaces:
+
+| Namespace | Responsibility | Primary Actions |
+| :--- | :--- | :--- |
+| `auth` | Identity Management | `signup`, `login`, `verifySession` |
+| `member` | AI Analysis | `analyzeSkills`, `getProfile`, `updateSettings` |
+| `github` | OS Discovery | `exploreRepos`, `getRepoDetails`, `fetchIssues` |
+| `projects`| Project Management | `createProject`, `listUserProjects`, `archive` |
+| `task` | Collaboration | `assignTask`, `updateStatus`, `listTasks` |
+| `user` | Administrative | `getMe`, `updateAvatar`, `toggleRole` |
 
 ---
 
 ## 🏁 Getting Started
 
 ### Prerequisites
+- **Node.js**: v18.0.0 or higher
+- **pnpm**: v8.0.0 or higher
+- **PostgreSQL**: Running instance (Local or Cloud)
+- **GitHub PAT**: Classic token with `public_repo` access
 
-- [Node.js](https://nodejs.org/) (>= 18.0.0)
-- [pnpm](https://pnpm.io/installation) (>= 8.0.0)
-- [PostgreSQL](https://www.postgresql.org/download/) instance
-
-### 1. Installation
-
-Clone the repository and install dependencies from the root:
-
+### 1️⃣ Clone & Install
 ```bash
-git clone https://github.com/yourusername/gitpulse.git
-cd gitpulse
+git clone https://github.com/ali-imtiyazkhan/gitpluse.git
+cd gitpluse
 pnpm install
 ```
 
-### 2. Environment Setup
+### 2️⃣ Environment Configuration
+Create the following `.env` files based on the project root:
 
-You need to configure environment variables for both the API and Web applications.
-
-#### Backend (`apps/api/.env`)
-```bash
-DATABASE_URL="postgresql://user:password@localhost:5432/gitpulse?schema=public"
-JWT_SECRET="your-super-secret-key"
+**`apps/api/.env`**
+```env
+DATABASE_URL="postgresql://user:pass@localhost:5432/gitpulse"
+JWT_SECRET="generate-a-random-32-char-string"
+GITHUB_PERSONAL_ACCESS_TOKEN="ghp_xxxxxxxxxxxx"
 PORT=8080
-CORS_ORIGINS=http://localhost:3000
-GITHUB_PERSONAL_ACCESS_TOKEN="your_github_pat"
 ```
 
-#### Frontend (`apps/web/.env.local`)
-```bash
+**`apps/web/.env.local`**
+```env
 NEXT_PUBLIC_API_URL="http://localhost:8080"
 NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="your-nextauth-secret"
+NEXTAUTH_SECRET="generate-another-random-string"
 GOOGLE_CLIENT_ID="xxx.apps.googleusercontent.com"
 GOOGLE_CLIENT_SECRET="xxx"
 ```
 
-### 3. Database Migration
-
-Run the migrations to set up your database schema:
-
+### 3️⃣ Synchronize Database
 ```bash
-pnpm turbo db:push # or use npx prisma migrate dev inside apps/api
+# From the root directory
+pnpm turbo db:push # This applies schema changes directly
 ```
 
-### 4. Running Locally
-
-Start the development servers for all applications using Turbo:
-
+### 4️⃣ Launch Development
 ```bash
 pnpm dev
 ```
+- **Frontend**: [http://localhost:3000](http://localhost:3000)
+- **API**: [http://localhost:8080](http://localhost:8080)
 
-The applications will be available at:
-- **Web App**: [http://localhost:3000](http://localhost:3000)
-- **API Server**: [http://localhost:8080](http://localhost:8080)
+---
+
+## 🗺️ Roadmap
+
+- [x] Initial Monorepo Setup (Turbo + pnpm)
+- [x] AI Skill Extraction Service
+- [x] GitHub Repository Explorer
+- [ ] **Phase 2**: Redis Caching for GitHub API responses
+- [ ] **Phase 3**: Real-time project collaboration chat
+- [ ] **Phase 4**: Automated "First Good Issue" email notifications
+- [ ] **Phase 5**: Mobile Companion App (React Native)
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions! Please follow these steps:
+We love builders! To contribute:
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git checkout -b feature/AmazingFeature`)
-5. Open a Pull Request
+1. **Bug Report**: Open an [Issue](https://github.com/ali-imtiyazkhan/gitpulse/issues)
+2. **Feature Request**: Open a [Discussion](https://github.com/ali-imtiyazkhan/gitpulse/discussions)
+3. **Code Change**: 
+   - Fork the repo
+   - Create a branch (`feature/your-feature`)
+   - Commit changes with descriptive messages
+   - Open a Pull Request referencing the issue
 
 ---
 
 ## 📄 License
 
-Distributed under the AGPL 3.0 License. See `LICENSE` for more information.
+This project is licensed under the **AGPL 3.0 License**. See the `LICENSE` file for details.
 
 <div align="center">
   <br />
-  Built with ❤️ for the Open Source Community
+  <strong>GitPulse — Forging the Future of Open Source</strong>
 </div>
