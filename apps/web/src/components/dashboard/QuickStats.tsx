@@ -4,6 +4,7 @@ import React from "react";
 import { motion } from "framer-motion";
 import { useSession } from "next-auth/react";
 import { useSocket } from "@/providers/socket-provider";
+import { trpc } from "@/lib/trpc";
 import {
   Shield,
   Crown,
@@ -47,6 +48,7 @@ const roleIcons: Record<string, React.ReactNode> = {
 const QuickStats = () => {
   const { data: session } = useSession();
   const { isConnected } = useSocket();
+  const { data: globalStats } = trpc.project.getStats.useQuery();
   
   const status = (session?.user as any)?.status || "GUEST";
   const role = (session?.user as any)?.role || "GUEST";
@@ -75,7 +77,7 @@ const QuickStats = () => {
     },
     {
       label: "Open Projects",
-      value: "12",
+      value: globalStats?.active?.toString() || "0",
       icon: <FolderGit2 className="size-4 text-brand-purple" />,
       subtext: "Active this week",
       valueClass: "text-text-primary",
@@ -83,7 +85,7 @@ const QuickStats = () => {
     },
     {
       label: "Contributors",
-      value: "48",
+      value: globalStats?.members?.toString() || "0",
       icon: <Users className="size-4 text-cyan-400" />,
       subtext: "Community members",
       valueClass: "text-text-primary",

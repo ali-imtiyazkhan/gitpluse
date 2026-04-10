@@ -14,6 +14,8 @@ import {
   ArrowLeftOnRectangleIcon,
   SparklesIcon,
   UserGroupIcon,
+  GlobeAltIcon,
+  ShieldCheckIcon,
 } from "@heroicons/react/24/outline";
 import { useShowSidebar } from "@/store/useShowSidebar";
 import { signOut, useSession } from "next-auth/react";
@@ -35,6 +37,12 @@ const ROUTES: RouteConfig[] = [
     icon: <HomeIcon className="size-5" />,
   },
   {
+    path: "/dashboard/community",
+    label: "Community",
+    icon: <UserGroupIcon className="size-5" />,
+    badge: "Pulse",
+  },
+  {
     path: "/dashboard/projects",
     label: "Projects",
     icon: <FolderIcon className="size-5" />,
@@ -42,7 +50,7 @@ const ROUTES: RouteConfig[] = [
   {
     path: "/dashboard/members",
     label: "Members",
-    icon: <UserGroupIcon className="size-5" />,
+    icon: <ShieldCheckIcon className="size-5" />,
     adminOnly: true,
   },
 ];
@@ -58,7 +66,7 @@ export default function Sidebar({ overlay = false }: { overlay?: boolean }) {
   const visibleRoutes = ROUTES.filter(route => !route.adminOnly || isAdmin);
 
   const reqFeatureHandler = () => {
-    window.open("https://github.com/ali-imtiyazkhan/gitpulse/issues", "_blank");
+    window.open("https://github.com/ali-imtiyazkhan/gitpluse/issues", "_blank");
   };
 
   const desktopWidth = isCollapsed ? 80 : 288;

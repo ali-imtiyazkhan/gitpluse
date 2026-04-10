@@ -12,13 +12,15 @@ import {
   GlobeAltIcon,
   SparklesIcon,
   LinkIcon,
-  CommandLineIcon
+  CommandLineIcon,
+  ArrowRightIcon
 } from "@heroicons/react/24/outline";
 import PrimaryButton from "@/components/ui/custom-button";
 import { toast } from "sonner";
+import QuickStats from "@/components/dashboard/QuickStats";
 
 interface CommunityLog {
-  type: "join" | "leave" | "share";
+  type: "join" | "leave" | "share" | "push" | "task";
   username: string;
   title?: string;
   timestamp: Date;
@@ -35,17 +37,40 @@ interface SharedItem {
 export default function CommunityExplorePage() {
   const { data: session } = useSession();
   const { socket, isConnected } = useSocket();
-  const [logs, setLogs] = useState<CommunityLog[]>([]);
+  const [logs, setLogs] = useState<CommunityLog[]>([
+    {
+      type: "push",
+      username: "Ajeet",
+      title: "main branch pushed",
+      timestamp: new Date(Date.now() - 1000 * 60 * 2), // 2 mins ago
+    },
+    {
+      type: "task",
+      username: "Bilal",
+      title: "Fixed CSS Grid issue",
+      timestamp: new Date(Date.now() - 1000 * 60 * 15), // 15 mins ago
+    },
+    {
+      type: "join",
+      username: "Charlie",
+      timestamp: new Date(Date.now() - 1000 * 60 * 45), // 45 mins ago
+    }
+  ]);
   const [sharedItems, setSharedItems] = useState<SharedItem[]>([]);
   const [shareTitle, setShareTitle] = useState("");
   const [shareContent, setShareContent] = useState("");
   const [isSharing, setIsSharing] = useState(false);
+  const [activeTab, setActiveTab] = useState<"activity" | "chat">("activity");
+  
+  const [messages, setMessages] = useState<any[]>([]);
+  const [chatInput, setChatInput] = useState("");
   
   const logEndRef = useRef<HTMLDivElement>(null);
+  const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const userName = session?.user?.name;
-    if (!socket || !isConnected || !userName) return;
+    if (!socket || !isConnected || !session?.user?.name) return;
+    const userName = session.user.name;
 
     // Join community room
     socket.emit("community:join", {
@@ -68,15 +93,20 @@ export default function CommunityExplorePage() {
       }
     });
 
+    // Listen for chat messages
+    socket.on("community:chat_message", (msg: any) => {
+      setMessages((prev) => [...prev, msg]);
+      setTimeout(() => chatEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+    });
+
     return () => {
-      if (userName) {
-        socket.emit("community:leave", {
-          username: userName,
-          communityId: "global",
-        });
-      }
+      socket.emit("community:leave", {
+        username: userName,
+        communityId: "global",
+      });
       socket.off("community:log");
       socket.off("community:shared");
+      socket.off("community:chat_message");
     };
   }, [socket, isConnected, session]);
 
@@ -104,6 +134,19 @@ export default function CommunityExplorePage() {
     toast.success("Content shared with the community!");
   };
 
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!chatInput.trim() || !session?.user?.name) return;
+
+    socket?.emit("community:chat", {
+      username: session.user.name,
+      communityId: "global",
+      message: chatInput,
+    });
+
+    setChatInput("");
+  };
+
   return (
     <div className="p-8 max-w-7xl mx-auto min-h-screen bg-dash-base text-text-primary">
       <header className="mb-10 flex justify-between items-end">
@@ -125,6 +168,10 @@ export default function CommunityExplorePage() {
             </div>
         </div>
       </header>
+      
+      <div className="mb-8">
+        <QuickStats />
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Feed */}
@@ -190,56 +237,101 @@ export default function CommunityExplorePage() {
           </section>
         </div>
 
-        {/* Real-time Logs SidePanel */}
+        {/* Real-time SidePanel */}
         <div className="space-y-6">
-          <section className="bg-dash-surface border border-dash-border rounded-2xl flex flex-col h-[600px] overflow-hidden shadow-sm">
-            <div className="p-4 border-b border-dash-border bg-dash-surface/50 backdrop-blur-sm sticky top-0 z-10">
-              <h2 className="text-sm font-bold uppercase tracking-widest text-text-muted flex items-center gap-2">
-                <CommandLineIcon className="size-4" />
+          <section className="bg-dash-surface border border-dash-border rounded-2xl flex flex-col h-[700px] overflow-hidden shadow-sm">
+            <div className="p-1 border-b border-dash-border bg-dash-surface/50 backdrop-blur-sm sticky top-0 z-10 flex">
+              <button 
+                onClick={() => setActiveTab("activity")}
+                className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === "activity" ? "text-brand-purple border-b-2 border-brand-purple bg-brand-purple/5" : "text-text-muted hover:text-text-primary"}`}
+              >
                 Activity Pulse
-              </h2>
+              </button>
+              <button 
+                onClick={() => setActiveTab("chat")}
+                className={`flex-1 py-3 text-[10px] font-bold uppercase tracking-widest transition-all ${activeTab === "chat" ? "text-brand-purple border-b-2 border-brand-purple bg-brand-purple/5" : "text-text-muted hover:text-text-primary"}`}
+              >
+                PulseBox Chat
+              </button>
             </div>
             
-            <div className="flex-grow overflow-y-auto p-4 space-y-3 custom-scrollbar">
-              <AnimatePresence initial={false}>
-                {logs.length === 0 && (
-                   <p className="text-[10px] text-text-muted text-center py-10">Monitoring network traffic...</p>
-                )}
-                {logs.map((log, index) => (
-                  <motion.div
-                    key={`${log.timestamp.toString()}-${index}`}
-                    initial={{ x: 20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    className="flex items-start gap-3 text-[11px] font-mono leading-tight bg-dash-base/50 p-2 rounded-lg border border-dash-border/50"
-                  >
-                    <span className="text-text-muted/40 shrink-0">
-                      {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                    
-                    {log.type === "join" && (
-                      <span className="text-green-400">
-                        <UserPlusIcon className="size-3 inline mr-1" />
-                        <span className="font-bold">{log.username}</span> connected to the grid.
-                      </span>
+            <div className="flex-grow overflow-y-auto p-4 custom-scrollbar">
+              {activeTab === "activity" ? (
+                <div className="space-y-3">
+                  <AnimatePresence initial={false}>
+                    {logs.length === 0 && (
+                      <p className="text-[10px] text-text-muted text-center py-10 italic">Monitoring network traffic...</p>
                     )}
-                    
-                    {log.type === "leave" && (
-                      <span className="text-red-400">
-                        <UserMinusIcon className="size-3 inline mr-1" />
-                        <span className="font-bold">{log.username}</span> dropped the connection.
-                      </span>
+                    {logs.map((log, index) => (
+                      <motion.div
+                        key={`${log.timestamp.toString()}-${index}`}
+                        initial={{ x: 20, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        className="flex items-start gap-3 text-[11px] font-mono leading-tight bg-dash-base/30 p-2 rounded-lg border border-dash-border/50"
+                      >
+                        <span className="text-text-muted/40 shrink-0">
+                          {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                        
+                        {log.type === "join" && <span className="text-green-400 font-medium"> <UserPlusIcon className="size-3 inline mr-1" /> {log.username} joined the community.</span>}
+                        {log.type === "leave" && <span className="text-red-400 font-medium"> <UserMinusIcon className="size-3 inline mr-1" /> {log.username} dropped.</span>}
+                        {log.type === "share" && <span className="text-blue-400 font-medium"> <ShareIcon className="size-3 inline mr-1" /> {log.username} shared "{log.title}"</span>}
+                        {log.type === "push" && <span className="text-orange-400 font-medium"> <CommandLineIcon className="size-3 inline mr-1" /> {log.username} made a push request: <span className="italic">"{log.title}"</span></span>}
+                        {log.type === "task" && <span className="text-purple-400 font-medium"> <SparklesIcon className="size-3 inline mr-1" /> {log.username} has been assigned: <span className="italic">"{log.title}"</span></span>}
+                      </motion.div>
+                    ))}
+                    <div ref={logEndRef} />
+                  </AnimatePresence>
+                </div>
+              ) : (
+                <div className="flex flex-col h-full">
+                  <div className="flex-grow space-y-4 mb-4">
+                    {messages.length === 0 && (
+                      <p className="text-[10px] text-text-muted text-center py-10 italic">Say hello to the community or PulseBot!</p>
                     )}
-                    
-                    {log.type === "share" && (
-                      <span className="text-blue-400">
-                        <ShareIcon className="size-3 inline mr-1" />
-                        <span className="font-bold">{log.username}</span> shared <span className="underline italic">"{log.title}"</span>
-                      </span>
-                    )}
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-              <div ref={logEndRef} />
+                    {messages.map((msg) => (
+                      <motion.div 
+                        initial={{ opacity: 0, y: 5 }} 
+                        animate={{ opacity: 1, y: 0 }} 
+                        key={msg.id} 
+                        className={`flex flex-col ${msg.username === session?.user?.name ? "items-end" : "items-start"}`}
+                      >
+                        <div className="flex items-center gap-1.5 mb-1 px-1">
+                          <span className={`text-[9px] font-bold ${msg.isBot ? "text-brand-purple" : "text-text-muted"}`}>
+                            {msg.username} {msg.isBot && "• AI"}
+                          </span>
+                        </div>
+                        <div className={`px-4 py-2.5 rounded-2xl text-xs max-w-[85%] leading-relaxed ${
+                          msg.isBot ? "bg-brand-purple/10 border border-brand-purple/20 text-brand-purple" :
+                          msg.username === session?.user?.name ? "bg-brand-purple text-white shadow-lg shadow-brand-purple/20" : 
+                          "bg-dash-base border border-dash-border text-text-primary"
+                        }`}>
+                          {msg.message}
+                        </div>
+                      </motion.div>
+                    ))}
+                    <div ref={chatEndRef} />
+                  </div>
+                  
+                  <form onSubmit={handleSendMessage} className="mt-auto pt-4 border-t border-dash-border">
+                    <div className="relative group">
+                      <input 
+                        type="text"
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        placeholder="Type a message..."
+                        className="w-full bg-dash-base border border-dash-border rounded-xl px-4 py-3 text-xs focus:ring-2 focus:ring-brand-purple/50 outline-none transition-all pr-12"
+                      />
+                      <button 
+                        type="submit"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-brand-purple/10 text-brand-purple hover:bg-brand-purple hover:text-white transition-all"
+                      >
+                        <ArrowRightIcon className="size-4" />
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
             </div>
           </section>
         </div>

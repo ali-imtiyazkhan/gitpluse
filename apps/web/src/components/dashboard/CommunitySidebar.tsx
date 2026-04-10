@@ -11,7 +11,8 @@ import {
   NewspaperIcon,
   GlobeAltIcon,
   XMarkIcon,
-  DocumentMagnifyingGlassIcon
+  DocumentMagnifyingGlassIcon,
+  CommandLineIcon
 } from "@heroicons/react/24/outline";
 import { useShowSidebar } from "@/store/useShowSidebar";
 import { IconWrapper } from "../ui/IconWrapper";
@@ -41,6 +42,11 @@ const COMMUNITY_ROUTES = [
     path: "/dashboard/community/analyzer",
     label: "Resume Analyzer",
     icon: <DocumentMagnifyingGlassIcon className="size-5" />,
+  },
+  {
+    path: "/dashboard/community/tasks",
+    label: "Available Tasks",
+    icon: <CommandLineIcon className="size-5" />,
   },
   {
     path: "/dashboard/community/showcase",

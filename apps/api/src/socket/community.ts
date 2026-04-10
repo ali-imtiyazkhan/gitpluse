@@ -48,4 +48,29 @@ export const setupCommunityHandlers = (io: Server, socket: Socket) => {
 
     console.log(`📢 ${data.username} shared something in community ${data.communityId}`);
   });
+
+  socket.on("community:chat", (data: { username: string; communityId: string; message: string }) => {
+    const chatMsg = {
+      id: Math.random().toString(36).substr(2, 9),
+      username: data.username,
+      message: data.message,
+      timestamp: new Date(),
+    };
+
+    io.to(`community:${data.communityId}`).emit("community:chat_message", chatMsg);
+
+    // AI PulseBot Logic
+    if (data.message.toLowerCase().includes("pulsebot") || data.message.includes("?")) {
+      setTimeout(() => {
+        const botResponse = {
+          id: "pulsebot-" + Date.now(),
+          username: "PulseBot",
+          message: `👋 Hello ${data.username}! I'm GitPulse's AI assistant. I'm currently monitoring the grid. You have a ${Math.floor(Math.random() * 20 + 80)}% community health rating today!`,
+          isBot: true,
+          timestamp: new Date(),
+        };
+        io.to(`community:${data.communityId}`).emit("community:chat_message", botResponse);
+      }, 1000);
+    }
+  });
 };

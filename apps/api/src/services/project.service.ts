@@ -52,12 +52,13 @@ export const projectService = {
    * Get project stats
    */
   async getProjectStats(prisma: ExtendedPrismaClient | PrismaClient) {
-    const [total, active] = await Promise.all([
+    const [total, active, members] = await Promise.all([
       prisma.project.count(),
       prisma.project.count({ where: { status: ProjectStatus.ACTIVE } }),
+      prisma.user.count(),
     ]);
 
-    return { total, active };
+    return { total, active, members };
   },
 
   /**
