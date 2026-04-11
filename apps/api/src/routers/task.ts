@@ -31,7 +31,10 @@ export const taskRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      return await taskService.createTask(ctx.db.prisma, input);
+      return await taskService.createTask(ctx.db.prisma, {
+        ...input,
+        userId: ctx.user!.id,
+      });
     }),
 
   /**

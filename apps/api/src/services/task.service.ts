@@ -8,7 +8,7 @@ export const taskService = {
    */
   async createTask(
     prisma: ExtendedPrismaClient | PrismaClient,
-    data: { title: string; description?: string | undefined; projectId: string; priority?: string | undefined }
+    data: { title: string; description?: string | undefined; projectId: string; priority?: string | undefined; userId: string }
   ) {
     const task = await prisma.task.create({
       data: {
@@ -16,6 +16,15 @@ export const taskService = {
         description: data.description ?? null,
         projectId: data.projectId,
         priority: data.priority || "MEDIUM",
+      },
+    });
+    
+    // Log to DB for persistence
+    await prisma.activityLog.create({
+      data: {
+        userId: data.userId,
+        action: "TASK_CREATED",
+        details: { taskId: task.id, title: task.title, projectId: task.projectId },
       },
     });
 

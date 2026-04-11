@@ -14,7 +14,7 @@ const prisma = new PrismaClient({
 
 const withTimeout = async <T>(
   operation: Promise<T>,
-  timeoutMs: number = 5000
+  timeoutMs: number = 20000
 ): Promise<T> => {
   const timeoutPromise = new Promise<never>((_, reject) => {
     setTimeout(

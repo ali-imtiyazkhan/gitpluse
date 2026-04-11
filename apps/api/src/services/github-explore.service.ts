@@ -115,11 +115,19 @@ export const githubExploreService = {
     }
 
     const token = process.env.GITHUB_PERSONAL_ACCESS_TOKEN;
-    if (!token) {
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "GitHub access token not configured",
-      });
+    
+    // Build headers - token is now optional
+    const headers: Record<string, string> = {
+      Accept: "application/vnd.github.v3+json",
+      "User-Agent": "GitPulse-App",
+    };
+
+    if (token) {
+      // Use 'token' prefix which is safer for classic PATs, 
+      // though 'Bearer' works for modern tokens.
+      headers.Authorization = token.startsWith("ghp_") 
+        ? `Bearer ${token}` 
+        : `token ${token}`;
     }
 
     const query = buildSearchQuery(filters);
@@ -127,7 +135,6 @@ export const githubExploreService = {
     const page = filters.page || 1;
     const perPage = filters.perPage || 24;
 
-    // Build URL
     const params = new URLSearchParams({
       q: query,
       per_page: String(perPage),
@@ -142,13 +149,7 @@ export const githubExploreService = {
     const url = `https://api.github.com/search/repositories?${params.toString()}`;
 
     try {
-      const response = await fetch(url, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: "application/vnd.github.v3+json",
-          "User-Agent": "GitPulse-App",
-        },
-      });
+      const response = await fetch(url, { headers });
 
       if (!response.ok) {
         const errorBody = await response.text();

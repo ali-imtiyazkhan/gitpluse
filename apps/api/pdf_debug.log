@@ -1,0 +1,13 @@
+[2026-04-11T01:08:56.921Z] Processing PDF: Size=64371, Header=%PDF-, Valid=true
+[2026-04-11T01:08:56.922Z] ❌ Error: pdf is not a function
+Stack: TypeError: pdf is not a function
+    at Object.extractText (C:\Users\Kapil Sharma\heck\gitpluse\apps\api\src\services\pdf.service.ts:23:26)
+    at <anonymous> (C:\Users\Kapil Sharma\heck\gitpluse\apps\api\src\routers\member.ts:128:42)
+    at async resolveMiddleware (C:\Users\Kapil Sharma\heck\gitpluse\node_modules\.pnpm\@trpc+server@11.7.2_typescript@5.9.3\node_modules\@trpc\server\src\unstable-core-do-not-import\procedureBuilder.ts:571:22)
+    at async callRecursive (C:\Users\Kapil Sharma\heck\gitpluse\node_modules\.pnpm\@trpc+server@11.7.2_typescript@5.9.3\node_modules\@trpc\server\src\unstable-core-do-not-import\procedureBuilder.ts:633:20)
+    at async callRecursive (C:\Users\Kapil Sharma\heck\gitpluse\node_modules\.pnpm\@trpc+server@11.7.2_typescript@5.9.3\node_modules\@trpc\server\src\unstable-core-do-not-import\procedureBuilder.ts:633:20)
+    at async callRecursive (C:\Users\Kapil Sharma\heck\gitpluse\node_modules\.pnpm\@trpc+server@11.7.2_typescript@5.9.3\node_modules\@trpc\server\src\unstable-core-do-not-import\procedureBuilder.ts:633:20)
+    at async procedure (C:\Users\Kapil Sharma\heck\gitpluse\node_modules\.pnpm\@trpc+server@11.7.2_typescript@5.9.3\node_modules\@trpc\server\src\unstable-core-do-not-import\procedureBuilder.ts:673:20)
+    at async <anonymous> (C:\Users\Kapil Sharma\heck\gitpluse\node_modules\.pnpm\@trpc+server@11.7.2_typescript@5.9.3\node_modules\@trpc\server\src\unstable-core-do-not-import\http\resolveResponse.ts:347:31)
+    at async Promise.all (index 0)
+    at async resolveResponse (C:\Users\Kapil Sharma\heck\gitpluse\node_modules\.pnpm\@trpc+server@11.7.2_typescript@5.9.3\node_modules\@trpc\server\src\unstable-core-do-not-import\http\resolveResponse.ts:613:35)

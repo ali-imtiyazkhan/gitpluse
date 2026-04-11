@@ -29,10 +29,10 @@ const isAuthed = t.middleware(async ({ ctx, next }) => {
         user,
       },
     });
-  } catch (error) {
+  } catch (error: any) {
     throw new TRPCError({
       code: "UNAUTHORIZED",
-      message: "Invalid or expired token",
+      message: `Invalid or expired token: ${error.message}`,
     });
   }
 });

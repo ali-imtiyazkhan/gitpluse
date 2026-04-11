@@ -1,4 +1,4 @@
-import type { PrismaClient } from "@prisma/client";
+import type { PrismaClient, Role } from "@prisma/client";
 import type { ExtendedPrismaClient } from "../prisma.js";
 
 export const userService = {
@@ -52,4 +52,69 @@ export const userService = {
 
     return (user.completedSteps as string[]) || [];
   },
+
+  /**
+   * Get all users (Admin only)
+   */
+  async getAllUsers(
+    prisma: ExtendedPrismaClient | PrismaClient,
+    params: { skip?: number; take?: number; search?: string }
+  ) {
+    const { skip = 0, take = 50, search } = params;
+    
+    const where = search ? {
+      OR: [
+        { email: { contains: search } },
+        { firstName: { contains: search } },
+      ]
+    } : {};
+
+    const [users, total] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          role: true,
+          status: true,
+          createdAt: true,
+          lastLogin: true,
+        }
+      }),
+      prisma.user.count({ where })
+    ]);
+
+    return { users, total };
+  },
+
+  /**
+   * Update user role (Admin only)
+   */
+  async updateRole(
+    prisma: ExtendedPrismaClient | PrismaClient,
+    userId: string,
+    role: Role
+  ) {
+    return await prisma.user.update({
+      where: { id: userId },
+      data: { role },
+      select: { id: true, role: true }
+    });
+  },
+
+  /**
+   * Delete user (Owner only)
+   */
+  async deleteUser(
+    prisma: ExtendedPrismaClient | PrismaClient,
+    userId: string
+  ) {
+    return await prisma.user.delete({
+      where: { id: userId }
+    });
+  }
 };

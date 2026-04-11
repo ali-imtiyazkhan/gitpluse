@@ -26,7 +26,7 @@ export const authService = {
    * Handle Google authentication
    * Creates or updates user and generates JWT token
    */
-  async handleGoogleAuth(prisma: any, input: GoogleAuthInput) {
+  async handleGoogleAuth(prisma: PrismaClient, input: GoogleAuthInput) {
     const { email, firstName, authMethod } = input;
 
     const user = await prisma.user.upsert({
@@ -54,6 +54,7 @@ export const authService = {
 
 
     const token = generateToken(email);
+    console.log(`✅ Login successful for: ${email}`);
 
     return {
       user,
@@ -66,7 +67,7 @@ export const authService = {
    * Tokens (refresh_token, access_token, id_token) are automatically encrypted
    * by Prisma Client Extension before storage
    */
-  async createOrUpdateOAuthAccount(prisma: any, input: OAuthAccountInput) {
+  async createOrUpdateOAuthAccount(prisma: PrismaClient, input: OAuthAccountInput) {
     const {
       userId,
       provider,
@@ -156,7 +157,7 @@ export const authService = {
    * Tokens are automatically decrypted by Prisma Client Extension when reading
    */
   async getOAuthAccount(
-    prisma: any,
+    prisma: PrismaClient,
     provider: string,
     providerAccountId: string
   ) {
@@ -175,7 +176,7 @@ export const authService = {
   /**
    * Get all OAuth accounts for a user with decrypted tokens
    */
-  async getUserOAuthAccounts(prisma: any, userId: string) {
+  async getUserOAuthAccounts(prisma: PrismaClient, userId: string) {
     const accounts = await prisma.account.findMany({
       where: { userId },
     });
@@ -187,7 +188,7 @@ export const authService = {
    * Delete OAuth account (e.g., when user disconnects provider)
    */
   async deleteOAuthAccount(
-    prisma: any,
+    prisma: PrismaClient,
     provider: string,
     providerAccountId: string
   ) {
@@ -213,7 +214,7 @@ export const authService = {
   /**
    * Handle credentials-based signup
    */
-  async signup(prisma: any, input: any) {
+  async signup(prisma: PrismaClient, input: any) {
     const { email, password, firstName } = input;
 
     // Check if user already exists
@@ -222,6 +223,7 @@ export const authService = {
     });
 
     if (existingUser) {
+      console.warn(`❌ Signup attempt failed: User already exists (${email})`);
       throw new Error("User already exists");
     }
 
@@ -237,6 +239,7 @@ export const authService = {
     });
 
     const token = generateToken(email);
+    console.log(`✅ Signup successful for: ${email}`);
 
     return {
       user: {
@@ -251,7 +254,7 @@ export const authService = {
   /**
    * Handle credentials-based login
    */
-  async login(prisma: any, input: any) {
+  async login(prisma: PrismaClient, input: any) {
     const { email, password } = input;
 
     const user = await prisma.user.findUnique({
@@ -259,16 +262,19 @@ export const authService = {
     });
 
     if (!user || !user.password) {
+      console.warn(`❌ Login failed: User not found or no password set for ${email}`);
       throw new Error("Invalid email or password");
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
+      console.warn(`❌ Login failed: Invalid password for ${email}`);
       throw new Error("Invalid email or password");
     }
 
     const token = generateToken(email);
+    console.log(`✅ Login successful for: ${email}`);
 
     return {
       user: {

@@ -110,7 +110,7 @@ export const memberService = {
       data: {
         userId: adminId,
         action: "ROLE_UPDATED",
-        details: { memberId: userId, role: newRole },
+        details: { memberId: userId, memberEmail: user.email, role: newRole },
       },
     });
 
@@ -124,12 +124,36 @@ export const memberService = {
 
 
   /**
-   * Get all members
+   * Get all members with contribution stats
    */
   async listMembers(prisma: ExtendedPrismaClient | PrismaClient) {
     return await prisma.user.findMany({
+      include: {
+        _count: {
+          select: { assignedTasks: true },
+        },
+      },
       orderBy: { createdAt: "desc" },
     });
+  },
+
+  /**
+   * Get high-level community statistics
+   */
+  async getMemberStats(prisma: ExtendedPrismaClient | PrismaClient) {
+    const [total, pending, approved, banned] = await Promise.all([
+      prisma.user.count(),
+      prisma.user.count({ where: { status: MemberStatus.PENDING } }),
+      prisma.user.count({ where: { status: MemberStatus.APPROVED } }),
+      prisma.user.count({ where: { status: MemberStatus.BANNED } }),
+    ]);
+
+    return {
+      total,
+      pending,
+      approved,
+      banned,
+    };
   },
 
   /**

@@ -39,6 +39,7 @@ export const authConfig: NextAuthOptions = {
               id: result.user.id,
               email: result.user.email,
               name: result.user.firstName,
+              jwtToken: result.token, // Pass token to jwt callback
             };
           }
           return null;
@@ -65,11 +66,12 @@ export const authConfig: NextAuthOptions = {
           scope: account?.scope,
         });
 
-        // Store user metadata in user object for JWT callback
+        // Store user metadata and token for the JWT callback to prevent redundant calls
         if (authResult?.user) {
           (user as any).createdAt = authResult.user.createdAt;
           (user as any).role = authResult.user.role;
           (user as any).status = authResult.user.status;
+          (user as any).jwtToken = authResult.token;
         }
 
         return true;
@@ -80,7 +82,6 @@ export const authConfig: NextAuthOptions = {
     },
 
     async session({ session, token }) {
-      // Add metadata from token to session
       if (session.user) {
         if (token.createdAt) session.user.createdAt = token.createdAt as string;
         if (token.role) (session.user as any).role = token.role as string;
@@ -95,28 +96,33 @@ export const authConfig: NextAuthOptions = {
     },
 
     async jwt({ token, account, user }) {
-      if (account && user) {
-        try {
+      // First login / Sign in
+      if (user) {
+        const u = user as any;
+        token.jwtToken = u.jwtToken;
+        
+        if (u.createdAt) {
+          token.createdAt = new Date(u.createdAt).toISOString();
+        }
+        if (u.role) {
+          token.role = u.role;
+        }
+        if (u.status) {
+          token.status = u.status;
+        }
+      } 
+      // Fallback: If for some reason token is missing but user is already signed in
+      else if (token.email && !token.jwtToken) {
+         try {
           const data = await serverTrpc.auth.generateJWT.mutate({
-            email: user.email!,
+            email: token.email as string,
           });
-
           token.jwtToken = data.token;
-
-          // Store metadata in token if available
-          if ((user as any).createdAt) {
-            token.createdAt = new Date((user as any).createdAt).toISOString();
-          }
-          if ((user as any).role) {
-            token.role = (user as any).role;
-          }
-          if ((user as any).status) {
-            token.status = (user as any).status;
-          }
         } catch (error) {
-          console.error("JWT token error:", error);
+          console.error("JWT sync error:", error);
         }
       }
+
       return token;
     },
 

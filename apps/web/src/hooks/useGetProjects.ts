@@ -7,16 +7,30 @@ export const useGetProjects = () => {
 
   const func = useCallback(
     async (filters: FilterProps): Promise<RepositoryProps[]> => {
-      const data = await (utils.client.project.getGithubProjects as any).query({
-        filters: filters as any,
-        options: {
-          sort: "stars" as const,
-          order: "desc" as const,
-          per_page: 30,
-          page: 1,
-        },
+      // Use the new githubExplore router which replaces the old project.getGithubProjects
+      const data = await utils.client.githubExplore.explore.query({
+        language: filters.language || undefined,
+        sortBy: "stars",
+        page: 1,
+        perPage: 30,
       });
-      return data;
+
+      // Map the new service response to the legacy RepositoryProps expected by the UI
+      return data.repos.map((repo: any) => ({
+        id: String(repo.id),
+        name: repo.name,
+        description: repo.description || "",
+        url: repo.url,
+        owner: {
+          avatarUrl: repo.owner.avatarUrl,
+        },
+        issues: {
+          totalCount: repo.openIssues,
+        },
+        primaryLanguage: {
+          name: repo.language || "Unknown",
+        },
+      }));
     },
     [utils]
   );

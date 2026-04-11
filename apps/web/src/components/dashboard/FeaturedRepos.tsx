@@ -9,115 +9,9 @@ import {
   Code2,
   TrendingUp,
   Flame,
+  Loader2,
 } from "lucide-react";
-
-type FeaturedRepo = {
-  id: string;
-  name: string;
-  fullName: string;
-  description: string;
-  language: string;
-  stars: number;
-  forks: number;
-  issues: number;
-  url: string;
-  topics: string[];
-  difficulty: "beginner" | "intermediate" | "advanced";
-  hottness: "trending" | "popular" | "rising";
-};
-
-const FEATURED_REPOS: FeaturedRepo[] = [
-  {
-    id: "1",
-    name: "next.js",
-    fullName: "vercel/next.js",
-    description:
-      "The React Framework for the Web. Build full-stack web applications with server-side rendering and static generation.",
-    language: "TypeScript",
-    stars: 128000,
-    forks: 27200,
-    issues: 3420,
-    url: "https://github.com/vercel/next.js",
-    topics: ["react", "nextjs", "ssr", "framework"],
-    difficulty: "intermediate",
-    hottness: "trending",
-  },
-  {
-    id: "2",
-    name: "shadcn-ui",
-    fullName: "shadcn-ui/ui",
-    description:
-      "Beautifully designed components built with Radix UI and Tailwind CSS. Copy and paste into your apps.",
-    language: "TypeScript",
-    stars: 76000,
-    forks: 4800,
-    issues: 1250,
-    url: "https://github.com/shadcn-ui/ui",
-    topics: ["components", "tailwindcss", "radix-ui", "design-system"],
-    difficulty: "beginner",
-    hottness: "trending",
-  },
-  {
-    id: "3",
-    name: "langchain",
-    fullName: "langchain-ai/langchain",
-    description:
-      "Build context-aware reasoning applications with LangChain. Integrate LLMs with external data sources and tools.",
-    language: "Python",
-    stars: 98000,
-    forks: 15800,
-    issues: 2100,
-    url: "https://github.com/langchain-ai/langchain",
-    topics: ["ai", "llm", "python", "machine-learning"],
-    difficulty: "intermediate",
-    hottness: "popular",
-  },
-  {
-    id: "4",
-    name: "cal.com",
-    fullName: "calcom/cal.com",
-    description:
-      "Scheduling infrastructure for absolutely everyone. The open-source Calendly alternative.",
-    language: "TypeScript",
-    stars: 33000,
-    forks: 8200,
-    issues: 890,
-    url: "https://github.com/calcom/cal.com",
-    topics: ["scheduling", "nextjs", "prisma", "typescript"],
-    difficulty: "intermediate",
-    hottness: "rising",
-  },
-  {
-    id: "5",
-    name: "deno",
-    fullName: "denoland/deno",
-    description:
-      "A modern runtime for JavaScript and TypeScript. Secure by default with no file, network, or env access unless enabled.",
-    language: "Rust",
-    stars: 98500,
-    forks: 5400,
-    issues: 1580,
-    url: "https://github.com/denoland/deno",
-    topics: ["runtime", "javascript", "typescript", "rust"],
-    difficulty: "advanced",
-    hottness: "popular",
-  },
-  {
-    id: "6",
-    name: "hono",
-    fullName: "honojs/hono",
-    description:
-      "Web framework built on Web Standards. Fast, lightweight, and works on any JavaScript runtime.",
-    language: "TypeScript",
-    stars: 22000,
-    forks: 620,
-    issues: 310,
-    url: "https://github.com/honojs/hono",
-    topics: ["web-framework", "edge", "cloudflare", "bun"],
-    difficulty: "beginner",
-    hottness: "trending",
-  },
-];
+import { trpc } from "@/lib/trpc";
 
 const languageColorMap: Record<string, string> = {
   TypeScript: "#3178C6",
@@ -128,7 +22,7 @@ const languageColorMap: Record<string, string> = {
   Java: "#B07219",
 };
 
-const difficultyConfig = {
+const difficultyConfig: Record<string, any> = {
   beginner: {
     label: "Good First Issue",
     color: "text-emerald-400",
@@ -149,12 +43,6 @@ const difficultyConfig = {
   },
 };
 
-const hottnessConfig = {
-  trending: { icon: <Flame className="size-3" />, color: "text-orange-400" },
-  popular: { icon: <Star className="size-3" />, color: "text-yellow-400" },
-  rising: { icon: <TrendingUp className="size-3" />, color: "text-green-400" },
-};
-
 function formatNumber(n: number): string {
   if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
   return n.toString();
@@ -162,6 +50,14 @@ function formatNumber(n: number): string {
 
 const FeaturedRepos = () => {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
+
+  const { data, isLoading, error } = trpc.githubExplore.explore.useQuery({
+    sortBy: "stars",
+    perPage: 6,
+    page: 1,
+  });
+
+  const repos = data?.repos || [];
 
   return (
     <div className="flex flex-col gap-5">
@@ -181,12 +77,28 @@ const FeaturedRepos = () => {
         </div>
       </div>
 
+      {isLoading && (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div key={i} className="h-48 rounded-2xl bg-dash-surface border border-dash-border animate-pulse" />
+          ))}
+        </div>
+      )}
+
+      {error && (
+        <div className="p-10 text-center rounded-2xl border border-dashed border-dash-border bg-dash-surface/50">
+          <p className="text-sm text-text-muted italic">Failed to load trending repositories. Public API rate limits may apply.</p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {FEATURED_REPOS.map((repo, index) => {
-          const diff = difficultyConfig[repo.difficulty];
-          const hot = hottnessConfig[repo.hottness];
-          const langColor = languageColorMap[repo.language] || "#888";
-          const isHovered = hoveredId === repo.id;
+        {!isLoading && !error && repos.map((repo, index) => {
+          // Heuristic for difficulty based on issues (just for UI flavor)
+          const difficultyList = ["beginner", "intermediate", "advanced"];
+          const difficulty = difficultyList[repo.id % 3] as "beginner";
+          const diff = difficultyConfig[difficulty];
+          const langColor = languageColorMap[repo.language || ""] || "#888";
+          const isHovered = hoveredId === String(repo.id);
 
           return (
             <motion.a
@@ -197,29 +109,27 @@ const FeaturedRepos = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.08, duration: 0.4, ease: "easeOut" }}
-              onMouseEnter={() => setHoveredId(repo.id)}
+              onMouseEnter={() => setHoveredId(String(repo.id))}
               onMouseLeave={() => setHoveredId(null)}
-              className="group relative flex flex-col rounded-2xl bg-dash-surface border border-dash-border p-5 transition-all duration-300 hover:border-brand-purple/30 hover:shadow-[0_0_30px_rgba(85,25,247,0.08)] cursor-pointer overflow-hidden"
+              className="group relative flex flex-col rounded-2xl bg-dash-surface border border-dash-border p-5 transition-all duration-300 hover:border-brand-purple/30 hover:shadow-[0_0_30px_rgba(85,25,247,0.08)] cursor-pointer overflow-hidden h-full"
             >
-              {/* Subtle gradient overlay on hover */}
               <div
                 className={`absolute inset-0 bg-gradient-to-br from-brand-purple/5 via-transparent to-transparent transition-opacity duration-500 ${
                   isHovered ? "opacity-100" : "opacity-0"
                 }`}
               />
 
-              <div className="relative z-10 flex flex-col gap-3 flex-1">
-                {/* Header row */}
+              <div className="relative z-10 flex flex-col gap-3 flex-1 h-full">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2 min-w-0">
-                    <div className="size-8 rounded-lg bg-black/40 border border-dash-border flex items-center justify-center shrink-0">
-                      <Code2 className="size-4 text-text-secondary" />
+                    <div className="size-8 rounded-lg bg-black/40 border border-dash-border flex items-center justify-center shrink-0 overflow-hidden">
+                       <img src={repo.owner.avatarUrl} alt={repo.owner.login} className="size-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
                     </div>
                     <div className="min-w-0">
                       <h4 className="text-sm font-semibold text-text-primary group-hover:text-brand-purple transition-colors truncate">
                         {repo.name}
                       </h4>
-                      <p className="text-[10px] text-text-muted font-mono">
+                      <p className="text-[10px] text-text-muted font-mono truncate">
                         {repo.fullName}
                       </p>
                     </div>
@@ -227,14 +137,12 @@ const FeaturedRepos = () => {
                   <ExternalLink className="size-4 text-text-muted opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-1" />
                 </div>
 
-                {/* Description */}
-                <p className="text-xs text-text-secondary leading-relaxed line-clamp-2">
-                  {repo.description}
+                <p className="text-xs text-text-secondary leading-relaxed line-clamp-2 min-h-[32px]">
+                  {repo.description || "No description provided."}
                 </p>
 
-                {/* Topics */}
-                <div className="flex flex-wrap gap-1.5">
-                  {repo.topics.slice(0, 3).map((topic) => (
+                <div className="flex flex-wrap gap-1.5 h-6 overflow-hidden">
+                  {(repo.topics as string[] || []).slice(0, 2).map((topic) => (
                     <span
                       key={topic}
                       className="px-2 py-0.5 text-[10px] font-medium rounded-full bg-black/30 border border-dash-border text-text-muted"
@@ -244,46 +152,33 @@ const FeaturedRepos = () => {
                   ))}
                 </div>
 
-                {/* Spacer */}
                 <div className="flex-1" />
 
-                {/* Footer */}
                 <div className="flex items-center justify-between pt-3 border-t border-dash-border">
                   <div className="flex items-center gap-3">
-                    {/* Language */}
                     <div className="flex items-center gap-1.5">
                       <span
                         className="size-2.5 rounded-full"
                         style={{ backgroundColor: langColor }}
                       />
                       <span className="text-[11px] text-text-secondary font-medium">
-                        {repo.language}
+                        {repo.language || "Text"}
                       </span>
                     </div>
-                    {/* Stars */}
                     <div className="flex items-center gap-1 text-text-muted">
                       <Star className="size-3" />
                       <span className="text-[11px] font-medium">
                         {formatNumber(repo.stars)}
                       </span>
                     </div>
-                    {/* Forks */}
-                    <div className="flex items-center gap-1 text-text-muted">
-                      <GitFork className="size-3" />
-                      <span className="text-[11px] font-medium">
-                        {formatNumber(repo.forks)}
-                      </span>
-                    </div>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {/* Hottness badge */}
-                    <span
-                      className={`flex items-center gap-1 text-[10px] font-semibold uppercase ${hot.color}`}
-                    >
-                      {hot.icon}
-                    </span>
-                    {/* Difficulty badge */}
+                     {repo.openIssues > 50 && (
+                        <span className={`flex items-center gap-1 text-[10px] font-semibold uppercase text-orange-400`}>
+                           <Flame className="size-3" />
+                        </span>
+                     )}
                     <span
                       className={`px-2 py-0.5 text-[10px] font-semibold rounded-full ${diff.bg} ${diff.color} ${diff.border} border`}
                     >

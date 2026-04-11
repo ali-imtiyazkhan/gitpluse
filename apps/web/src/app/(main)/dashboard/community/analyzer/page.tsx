@@ -8,6 +8,7 @@ import {
   DocumentTextIcon, 
   SparklesIcon, 
   CheckCircleIcon,
+  XCircleIcon,
   CpuChipIcon,
   CodeBracketIcon,
   WrenchScrewdriverIcon,
@@ -22,13 +23,19 @@ export default function ResumeAnalyzerPage() {
   const [file, setFile] = useState<File | null>(null);
   const [fileData, setFileData] = useState<string | null>(null);
   const [results, setResults] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const { data: suggestions, refetch: refetchSuggestions } = trpc.project.getSuggested.useQuery(undefined, {
     enabled: !!results,
   });
 
   const mutation = trpc.member.analyzeSkills.useMutation({
+    onMutate: () => {
+      console.log("🚀 Mutation: analyzeSkills triggered");
+      setError(null);
+    },
     onSuccess: (data) => {
+      console.log("✅ Mutation: analyzeSkills success", data);
       setResults(data);
       refetchSuggestions();
       toast.success("Analysis complete!", {
@@ -36,6 +43,8 @@ export default function ResumeAnalyzerPage() {
       });
     },
     onError: (err) => {
+      console.error("❌ Mutation: analyzeSkills error", err);
+      setError(err.message);
       toast.error("Analysis failed", {
         description: err.message,
       });
@@ -153,7 +162,30 @@ export default function ResumeAnalyzerPage() {
         <section className="lg:col-span-7 flex flex-col gap-8">
           <div className="bg-dash-surface border border-dash-border rounded-2xl p-6 relative overflow-hidden min-h-[400px]">
             <AnimatePresence mode="wait">
-              {!results ? (
+              {error ? (
+                <motion.div 
+                  key="error"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="h-full flex flex-col items-center justify-center text-center space-y-4 py-20"
+                >
+                  <div className="w-16 h-16 rounded-full bg-rose-500/10 flex items-center justify-center">
+                    <XCircleIcon className="size-8 text-rose-500/50" />
+                  </div>
+                  <div className="max-w-xs">
+                    <h3 className="text-lg font-semibold text-text-primary">Analysis Error</h3>
+                    <p className="text-sm text-rose-500/80 mt-1 font-medium italic">
+                      {error}
+                    </p>
+                    <PrimaryButton 
+                      onClick={handleAnalyze} 
+                      classname="mt-6 py-2 px-6 text-xs h-auto bg-rose-500/10 border-rose-500/20 text-rose-500 hover:bg-rose-500 hover:text-white"
+                    >
+                      Try Again
+                    </PrimaryButton>
+                  </div>
+                </motion.div>
+              ) : !results ? (
                 <motion.div 
                   key="empty"
                   initial={{ opacity: 0 }}

@@ -69,10 +69,32 @@ export const memberRouter = router({
   }),
 
   /**
+   * Get community stats (Admin only)
+   */
+  getStats: adminProcedure.query(async ({ ctx }) => {
+    return await memberService.getMemberStats(ctx.db.prisma);
+  }),
+
+  /**
    * Get audit logs (Admin only)
    */
   getAuditLogs: adminProcedure.query(async ({ ctx }) => {
     return await memberService.getAuditLogs(ctx.db.prisma);
+  }),
+
+  /**
+   * Get recent activity for the dashboard (Protected)
+   */
+  getRecentActivities: protectedProcedure.query(async ({ ctx }) => {
+    return await ctx.db.prisma.activityLog.findMany({
+      take: 10,
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: {
+          select: { firstName: true, email: true },
+        },
+      },
+    });
   }),
   /**
    * Analyze skills from a block of text
@@ -89,9 +111,18 @@ export const memberRouter = router({
       // Handle PDF extraction if file is provided
       if (input.fileData && input.fileType === "application/pdf") {
         const { pdfService } = await import("../services/pdf.service.js");
-        const buffer = Buffer.from(input.fileData.split(",")[1] || input.fileData, "base64");
+        
+        // Robust base64 extraction
+        const base64Data = input.fileData.includes(",") 
+          ? input.fileData.split(",")[1] 
+          : input.fileData;
+          
+        if (!base64Data) {
+          throw new Error("Invalid file data format");
+        }
+        
+        const buffer = Buffer.from(base64Data, "base64");
         textToAnalyze = await pdfService.extractText(buffer);
-        console.log("📄 PDF Text Extracted. Length:", textToAnalyze.length);
       }
 
       if (!textToAnalyze) {

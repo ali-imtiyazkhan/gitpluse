@@ -20,6 +20,15 @@ export const projectService = {
       },
     });
 
+    // Log to DB for persistence
+    await prisma.activityLog.create({
+      data: {
+        userId: data.ownerId,
+        action: "PROJECT_CREATED",
+        details: { projectId: project.id, name: project.name },
+      },
+    });
+
     emitActivity("PROJECT_CREATED", {
       projectId: project.id,
       name: project.name,
