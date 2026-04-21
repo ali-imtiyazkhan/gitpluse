@@ -30,7 +30,6 @@ export const aiService = {
       const rawJson = data.candidates?.[0]?.content?.parts?.[0]?.text;
       
       if (rawJson) {
-        // Find JSON block if AI included markdown markers
         const jsonMatch = rawJson.match(/\{[\s\S]*\}/);
         if (jsonMatch) {
           return JSON.parse(jsonMatch[0]);
@@ -39,7 +38,7 @@ export const aiService = {
 
       throw new Error("AI did not return a valid JSON structure");
     } catch (error) {
-      console.error("❌ AI Analysis Error:", error);
+      console.error("AI Analysis Error:", error);
       const { skillExtractorService } = await import("./skill-extractor.service.js");
       return skillExtractorService.extractSkills(text);
     }

@@ -114,9 +114,9 @@ const SignInPage = () => {
             if (result?.error) {
               toast.error(result.error === "CredentialsSignin" ? "Invalid email or password" : result.error);
               setIsLoading(false);
-            } else if (result?.url) {
+            } else if (result?.ok) {
               toast.success("Login successful!");
-              router.push(result.url);
+              router.push(safeCallbackUrl);
               router.refresh();
             }
           } catch (error) {

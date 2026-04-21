@@ -209,6 +209,30 @@ const FeaturedRepos = () => {
               />
 
               <div className="relative z-10 flex flex-col gap-3 flex-1">
+                {/* Difficulty + Hottness badges — top of card */}
+                <div className="flex items-center justify-between gap-2">
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-bold uppercase tracking-wide rounded-full ${diff.bg} ${diff.color} ${diff.border} border`}
+                  >
+                    <span
+                      className={`size-1.5 rounded-full ${
+                        repo.difficulty === "beginner"
+                          ? "bg-emerald-400"
+                          : repo.difficulty === "intermediate"
+                          ? "bg-amber-400"
+                          : "bg-rose-400"
+                      }`}
+                    />
+                    {diff.label}
+                  </span>
+                  <span
+                    className={`inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider rounded-full bg-white/5 border border-white/10 ${hot.color}`}
+                  >
+                    {hot.icon}
+                    {repo.hottness}
+                  </span>
+                </div>
+
                 {/* Header row */}
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-2 min-w-0">
@@ -248,46 +272,29 @@ const FeaturedRepos = () => {
                 <div className="flex-1" />
 
                 {/* Footer */}
-                <div className="flex items-center justify-between pt-3 border-t border-dash-border">
-                  <div className="flex items-center gap-3">
-                    {/* Language */}
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className="size-2.5 rounded-full"
-                        style={{ backgroundColor: langColor }}
-                      />
-                      <span className="text-[11px] text-text-secondary font-medium">
-                        {repo.language}
-                      </span>
-                    </div>
-                    {/* Stars */}
-                    <div className="flex items-center gap-1 text-text-muted">
-                      <Star className="size-3" />
-                      <span className="text-[11px] font-medium">
-                        {formatNumber(repo.stars)}
-                      </span>
-                    </div>
-                    {/* Forks */}
-                    <div className="flex items-center gap-1 text-text-muted">
-                      <GitFork className="size-3" />
-                      <span className="text-[11px] font-medium">
-                        {formatNumber(repo.forks)}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    {/* Hottness badge */}
+                <div className="flex items-center gap-4 pt-3 border-t border-dash-border">
+                  {/* Language */}
+                  <div className="flex items-center gap-1.5">
                     <span
-                      className={`flex items-center gap-1 text-[10px] font-semibold uppercase ${hot.color}`}
-                    >
-                      {hot.icon}
+                      className="size-2.5 rounded-full"
+                      style={{ backgroundColor: langColor }}
+                    />
+                    <span className="text-[11px] text-text-secondary font-medium">
+                      {repo.language}
                     </span>
-                    {/* Difficulty badge */}
-                    <span
-                      className={`px-2 py-0.5 text-[10px] font-semibold rounded-full ${diff.bg} ${diff.color} ${diff.border} border`}
-                    >
-                      {diff.label}
+                  </div>
+                  {/* Stars */}
+                  <div className="flex items-center gap-1 text-text-muted">
+                    <Star className="size-3" />
+                    <span className="text-[11px] font-medium">
+                      {formatNumber(repo.stars)}
+                    </span>
+                  </div>
+                  {/* Forks */}
+                  <div className="flex items-center gap-1 text-text-muted">
+                    <GitFork className="size-3" />
+                    <span className="text-[11px] font-medium">
+                      {formatNumber(repo.forks)}
                     </span>
                   </div>
                 </div>

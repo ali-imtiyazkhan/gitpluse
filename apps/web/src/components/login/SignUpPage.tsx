@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import PrimaryButton from "../ui/custom-button";
 import Image from "next/image";
 import Overlay from "../ui/overlay";
-import Link from "next/link";
 
 const SignUpPage = () => {
   const router = useRouter();
