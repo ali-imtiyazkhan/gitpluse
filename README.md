@@ -106,4 +106,57 @@ Fostering situational awareness and collective decision-making via a live intera
 ## 🛡️ License
 Distributed under the MIT License. See `LICENSE` for more information.
 
-Built by Team Loki | HackTheChain 4.0
+Built by Team Loki | HackTheChain 4.0  
+
+upcomming fearure : 
+ Building a "Chat with your Codebase" tool for open-source projects is one of the most powerful things you can do with LangChain.
+
+To achieve this, you use the GitHubRepositoryLoader. It will crawl the repo, load the code files, and prepare them for a Vector Store so you can ask questions like "Where is the authentication logic?" or "How can I optimize the database queries in this repo?"
+
+Step 1: Install Dependencies
+You will need the PyGithub library:
+
+powershell
+pip install PyGithub
+Step 2: Create the GitHub Loader Script
+Here is how you would set up the loader.
+
+New File: 9.DocumentLoader\github_loader.py
+
+python
+import os
+from dotenv import load_dotenv
+# pyrefly: ignore [missing-import]
+from langchain_community.document_loaders import GitHubRepositoryLoader
+load_dotenv()
+# 1. Setup your credentials
+# You MUST set GITHUB_PERSONAL_ACCESS_TOKEN in your .env file
+# Create one at: https://github.com/settings/tokens
+github_token = os.getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
+# 2. Initialize the loader for a specific repo
+loader = GitHubRepositoryLoader(
+    repo="langchain-ai/langchain", # Example: The LangChain repo itself
+    branch="master",
+    relative_urls=True,
+    github_personal_access_token=github_token,
+)
+# 3. Load the documents
+print("Loading repository... this may take a while for large repos.")
+try:
+    documents = loader.load()
+    print(f"Successfully loaded {len(documents)} files from the repository.")
+    
+    # Example: Show the first file's path and content
+    print(f"\nExample File: {documents[0].metadata['source']}")
+    print(f"Preview:\n{documents[0].page_content[:300]}...")
+except Exception as e:
+    print(f"Error: {e}")
+    print("Tip: Ensure your GITHUB_PERSONAL_ACCESS_TOKEN is correct and has repo access.")
+How to use this for "Chatting":
+Once you have these documents:
+
+Split them into chunks (using RecursiveCharacterTextSplitter).
+Embed them (using GoogleGenerativeAIEmbeddings).
+Store them in a Vector Store (like FAISS).
+Query them using a Retrieval Chain (like the one we built in the first step).
+Would you like me to help you combine this with the Vector Store and Gemini to create the actual Chatbot?
